@@ -60,7 +60,7 @@
     <button class="btn ghost" id="resetBtn">Reset</button>
     <button class="btn primary" id="newBtn">New Map</button>
   </div>
-  <div id="hint">Press the <b>📦 pickup</b>, then drag along the roads to both <b>🏠 houses</b>.</div>
+  <div id="hint">Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.</div>
   <div id="overlay" class="hidden"><div class="card" id="card"></div></div>
 </div>
 
@@ -95,6 +95,12 @@
       for (const v of g.adj.get(u)) { const nd = dist.get(u) + nodeDist(g, u, v); if (nd < dist.get(v)) dist.set(v, nd); }
     }
     return dist.get(goal);
+  }
+  function perms(arr) {
+    if (arr.length <= 1) return [arr];
+    const out = [];
+    arr.forEach((v, i) => { const rest = arr.slice(0, i).concat(arr.slice(i + 1)); for (const p of perms(rest)) out.push([v, ...p]); });
+    return out;
   }
 
   // ── State ──
@@ -141,8 +147,11 @@
     const pickup = pick([], 0);
     const d1 = pick([pickup], 3);
     const d2 = pick([pickup, d1], 3);
-    const optimal = Math.min(dijkstra(G, pickup, d1) + dijkstra(G, d1, d2), dijkstra(G, pickup, d2) + dijkstra(G, d2, d1));
-    state = { pickup, drops: [{ node: d1, done: false }, { node: d2, done: false }], path: [], drawing: false, finished: false, optimal };
+    const d3 = pick([pickup, d1, d2], 3);
+    const dropNodes = [d1, d2, d3];
+    const routeDist = (order) => { let d = dijkstra(G, pickup, order[0]); for (let i = 1; i < order.length; i++) d += dijkstra(G, order[i - 1], order[i]); return d; };
+    const optimal = Math.min(...perms(dropNodes).map(routeDist));
+    state = { pickup, drops: dropNodes.map(n => ({ node: n, done: false })), path: [], drawing: false, finished: false, optimal };
   }
 
   // ── Drawing the traced route ──
@@ -215,8 +224,9 @@
     }
     // pins
     pin(toScreen(state.pickup), '#f59e0b', '📦', false);
+    const DROP_COLORS = ['#3b82f6', '#a855f7', '#ec4899'];
     state.drops.forEach((d, i) => {
-      const p = toScreen(d.node); pin(p, i === 0 ? '#3b82f6' : '#a855f7', '🏠', d.done);
+      const p = toScreen(d.node); pin(p, DROP_COLORS[i % DROP_COLORS.length], '🏠', d.done);
       if (!d.done) { ctx.fillStyle = '#fff'; ctx.font = 'bold 12px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(String(i + 1), p.x + 13, p.y - 30); }
     });
     // truck at the tail of the route
@@ -253,7 +263,7 @@
     if (!state.drawing) return;
     state.drawing = false;
     if (state.drops.every(d => d.done)) finish();
-    else setHint('Deliver to <b>both 🏠 houses</b> — keep dragging from the 🚚.');
+    else setHint('Deliver to <b>all 3 🏠 houses</b> — keep dragging from the 🚚.');
   }
 
   function setHint(html) { document.getElementById('hint').innerHTML = html; }
@@ -279,8 +289,8 @@
     document.getElementById('againBtn').addEventListener('click', newMap);
   }
 
-  function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to both <b>🏠 houses</b>.'); render(); }
-  function newMap() { genMap(); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to both <b>🏠 houses</b>.'); render(); }
+  function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
+  function newMap() { genMap(); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
 
   function relayout() { if (!sizeCanvas()) { setTimeout(relayout, 50); return; } transform = computeFit(canvas.width, canvas.height); buildBase(); render(); }
 
@@ -302,8 +312,10 @@
       traceTo: (sx, sy) => { stepToward(sx, sy); render(); },
       screenOf: (id) => toScreen(id),
       autoSolve: () => { // trace the optimal order for verification
-        const [a, b] = state.drops.map(d => d.node);
-        const order = (dijkstra(G, state.pickup, a) + dijkstra(G, a, b)) <= (dijkstra(G, state.pickup, b) + dijkstra(G, b, a)) ? [a, b] : [b, a];
+        const nodes = state.drops.map(d => d.node);
+        const rd = (order) => { let d = dijkstra(G, state.pickup, order[0]); for (let i = 1; i < order.length; i++) d += dijkstra(G, order[i - 1], order[i]); return d; };
+        let order = nodes, bestD = Infinity;
+        for (const p of perms(nodes)) { const d = rd(p); if (d < bestD) { bestD = d; order = p; } }
         state.path = [state.pickup]; state.drawing = true;
         for (const target of order) { const p = toScreen(target); stepToward(p.x, p.y); }
         state.drawing = false; markDeliveries();
