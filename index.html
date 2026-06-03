@@ -118,7 +118,7 @@
 
   // ── Isometric projection ──
   let TW, TH, ZS, OFFX, OFFY;
-  const ISO_R = 0.6, ISO_H = 0.6;
+  const ISO_R = 0.64, ISO_H = 0.3;
   function iso(wx, wy, wz) { return { x: OFFX + (wx - wy) * TW, y: OFFY + (wx + wy) * TH - (wz || 0) * ZS }; }
   function toScreen(id) { const p = cr(id); return iso(p[0], p[1], 0); }
   function parcelCenter(parcel) { return iso(parcel[0] + 0.5, parcel[1] + 0.5, 0); }
