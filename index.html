@@ -8,44 +8,45 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;800;900&family=Russo+One&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { height: 100%; background: #0a0e14; color: #fff; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; -webkit-user-select: none; user-select: none; touch-action: none; }
+  html, body { height: 100%; color: #fff; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; -webkit-user-select: none; user-select: none; touch-action: none;
+    background: radial-gradient(120% 90% at 50% 0%, #2a3550 0%, #161d2e 55%, #0c111c 100%); }
   #app { position: relative; width: 100vw; height: 100vh; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
 
-  #topbar { position: absolute; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 16px;
-    background: linear-gradient(180deg, rgba(10,14,20,.96), rgba(10,14,20,.78)); border-bottom: 1px solid rgba(255,255,255,.08); z-index: 5; }
+  #topbar { position: absolute; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 16px; z-index: 5;
+    background: linear-gradient(180deg, rgba(8,11,18,.92), rgba(8,11,18,.55)); border-bottom: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(8px); }
   .logo { font-family: 'Russo One', sans-serif; font-size: 20px; letter-spacing: .5px; }
   .logo b { color: #ffd23f; }
   .spacer { flex: 1; }
-  .stat { text-align: center; min-width: 92px; }
+  .stat { text-align: center; min-width: 86px; }
   .stat .l { font-size: 10px; letter-spacing: 1.5px; color: #9aa4b2; font-weight: 700; }
   .stat .v { font-family: 'Russo One', sans-serif; font-size: 20px; }
-  .stat .v.you { color: #5aa9ff; } .stat .v.best { color: #34d36b; }
+  .stat .v.you { color: #6cb0ff; } .stat .v.best { color: #34d36b; }
   .btn { padding: 9px 16px; border: 0; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 13px; letter-spacing: .5px; }
-  .btn.ghost { background: rgba(255,255,255,.1); color: #fff; }
+  .btn.ghost { background: rgba(255,255,255,.12); color: #fff; }
   .btn.primary { background: linear-gradient(180deg,#2ee06a,#1eb455); color: #06210f; }
 
-  #hint { position: absolute; left: 50%; bottom: 26px; transform: translateX(-50%); background: rgba(10,14,20,.86); border: 1px solid rgba(255,255,255,.12);
+  #hint { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: rgba(8,11,18,.86); border: 1px solid rgba(255,255,255,.12);
     padding: 10px 18px; border-radius: 99px; font-weight: 700; font-size: 14px; z-index: 5; backdrop-filter: blur(6px); white-space: nowrap; }
   #hint b { color: #ffd23f; }
 
-  #overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5,8,12,.66); backdrop-filter: blur(4px); z-index: 10; }
+  #overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5,8,12,.62); backdrop-filter: blur(4px); z-index: 10; }
   #overlay.hidden { display: none; }
-  .card { width: min(420px,92vw); background: #121826; border: 1px solid rgba(255,255,255,.1); border-radius: 20px; padding: 26px; text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,.5); }
-  .card h2 { font-family: 'Russo One', sans-serif; font-size: 28px; margin-bottom: 6px; }
+  .card { width: min(430px,92vw); background: #141b2b; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 26px; text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,.55); }
+  .card h2 { font-family: 'Russo One', sans-serif; font-size: 28px; margin-bottom: 4px; }
   .stars { font-size: 34px; letter-spacing: 6px; margin: 6px 0 14px; }
-  .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px; }
-  .res-cell { background: rgba(255,255,255,.05); border-radius: 12px; padding: 14px; }
+  .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+  .res-cell { background: rgba(255,255,255,.05); border-radius: 12px; padding: 13px; }
   .res-cell .rl { font-size: 11px; letter-spacing: 1px; color: #9aa4b2; }
-  .res-cell .rv { font-family: 'Russo One', sans-serif; font-size: 24px; margin-top: 3px; }
-  .res-cell .rv.you { color: #5aa9ff; } .res-cell .rv.best { color: #34d36b; }
+  .res-cell .rv { font-family: 'Russo One', sans-serif; font-size: 23px; margin-top: 3px; }
+  .res-cell .rv.you { color: #6cb0ff; } .res-cell .rv.best { color: #34d36b; }
   .card .msg { color: #c3cad6; margin-bottom: 18px; }
   .card .btn.primary { width: 100%; padding: 14px; font-family: 'Russo One', sans-serif; font-size: 16px; }
 
   @media (max-width: 620px) {
-    .logo { font-size: 15px; } .stat { min-width: 64px; } .stat .v { font-size: 16px; }
-    #topbar { gap: 8px; padding: 0 10px; } .btn { padding: 8px 11px; font-size: 12px; }
-    #hint { font-size: 12px; bottom: 18px; padding: 9px 14px; }
+    .logo { font-size: 15px; } .stat { min-width: 60px; } .stat .v { font-size: 16px; }
+    #topbar { gap: 7px; padding: 0 10px; } .btn { padding: 8px 11px; font-size: 12px; }
+    #hint { font-size: 12px; bottom: 16px; padding: 9px 14px; }
   }
 </style>
 </head>
@@ -71,119 +72,91 @@
 
   // ── Grid road graph ──
   function key(c, r) { return c + ',' + r; }
-  function makeGrid(cols, rows, cell) {
+  function makeGrid(cols, rows) {
     const nodes = new Map(), adj = new Map();
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      const id = key(c, r); nodes.set(id, { id, c, r, x: c * cell, y: r * cell }); adj.set(id, []);
-    }
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const id = key(c, r); nodes.set(id, { id, c, r }); adj.set(id, []); }
     const link = (a, b) => { adj.get(a).push(b); adj.get(b).push(a); };
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
-      if (c + 1 < cols) link(key(c, r), key(c + 1, r));
-      if (r + 1 < rows) link(key(c, r), key(c, r + 1));
-    }
-    return { nodes, adj, cols, rows, cell };
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { if (c + 1 < cols) link(key(c, r), key(c + 1, r)); if (r + 1 < rows) link(key(c, r), key(c, r + 1)); }
+    return { nodes, adj, cols, rows };
   }
-  function nodeDist(g, a, b) { const na = g.nodes.get(a), nb = g.nodes.get(b); return Math.hypot(na.x - nb.x, na.y - nb.y); }
+  function cr(id) { const p = id.split(','); return [+p[0], +p[1]]; }
+  function nodeDist(a, b) { const A = cr(a), B = cr(b); return Math.hypot(A[0] - B[0], A[1] - B[1]); }
   function dijkstra(g, start, goal) {
-    const dist = new Map(), visited = new Set();
+    const dist = new Map(), vis = new Set();
     for (const id of g.nodes.keys()) dist.set(id, Infinity);
     dist.set(start, 0);
     while (true) {
       let u = null, best = Infinity;
-      for (const [id, d] of dist) if (!visited.has(id) && d < best) { best = d; u = id; }
+      for (const [id, d] of dist) if (!vis.has(id) && d < best) { best = d; u = id; }
       if (u === null || u === goal) break;
-      visited.add(u);
-      for (const v of g.adj.get(u)) { const nd = dist.get(u) + nodeDist(g, u, v); if (nd < dist.get(v)) dist.set(v, nd); }
+      vis.add(u);
+      for (const v of g.adj.get(u)) { const nd = dist.get(u) + nodeDist(u, v); if (nd < dist.get(v)) dist.set(v, nd); }
     }
     return dist.get(goal);
   }
-  function perms(arr) {
-    if (arr.length <= 1) return [arr];
-    const out = [];
-    arr.forEach((v, i) => { const rest = arr.slice(0, i).concat(arr.slice(i + 1)); for (const p of perms(rest)) out.push([v, ...p]); });
-    return out;
-  }
+  function perms(arr) { if (arr.length <= 1) return [arr]; const out = []; arr.forEach((v, i) => { const rest = arr.slice(0, i).concat(arr.slice(i + 1)); for (const p of perms(rest)) out.push([v, ...p]); }); return out; }
 
   // ── State ──
   const canvas = document.getElementById('map');
   const ctx = canvas.getContext('2d');
-  let G, transform, baseLayer;
-  let state = null; // { pickup, drops:[{node,done},..], path:[nodeId], drawing, finished }
+  let G, baseLayer, state = null;
   const anim = { t: 0, dist: 0, parts: [] };
   let actx = null, lastT = 0;
+  const COLS = 7, ROWS = 6;
+  const DROP_COLORS = ['#3b82f6', '#a855f7', '#ec4899'];
+  const ROOF = ['#e8694a', '#5b8fb0', '#6ea65a', '#caa24a']; // decorative roof tints
 
-  const COLS = 7, ROWS = 6, CELL = 1;
-
-  function sizeCanvas() {
-    const w = canvas.clientWidth || innerWidth || 1000, h = canvas.clientHeight || innerHeight || 700;
-    canvas.width = w; canvas.height = h;
-    return w > 0 && h > 0;
-  }
-
+  // ── Isometric projection ──
+  let TW, TH, ZS, OFFX, OFFY;
+  function iso(wx, wy, wz) { return { x: OFFX + (wx - wy) * TW, y: OFFY + (wx + wy) * TH - (wz || 0) * ZS }; }
+  function toScreen(id) { const p = cr(id); return iso(p[0], p[1], 0); }
+  function parcelCenter(parcel) { return iso(parcel[0] + 0.5, parcel[1] + 0.5, 0); }
+  function sizeCanvas() { const w = canvas.clientWidth || innerWidth || 1000, h = canvas.clientHeight || innerHeight || 700; canvas.width = w; canvas.height = h; return w > 0 && h > 0; }
   function computeFit(w, h) {
-    const pad = Math.min(w, h) * 0.07;
-    const top = 72;
-    const worldW = (COLS - 1) * CELL, worldH = (ROWS - 1) * CELL;
-    const availW = w - pad * 2, availH = h - top - pad * 2 - 40;
-    const scale = Math.min(availW / worldW, availH / worldH);
-    return { scale, offX: (w - worldW * scale) / 2, offY: top + (h - top - worldH * scale) / 2 };
+    const top = 70, pad = Math.min(w, h) * 0.05, span = (COLS - 1) + (ROWS - 1);
+    TW = Math.min((w - pad * 2) / span, (h - top - pad * 2) / (span * 0.5 * 1.5));
+    TH = TW * 0.5; ZS = TW * 1.25;
+    const xmin = -(ROWS - 1) * TW, xmax = (COLS - 1) * TW;
+    OFFX = w / 2 - (xmin + xmax) / 2;
+    const groundH = span * TH, head = ZS * 1.3;
+    OFFY = top + head + ((h - top - groundH - head) / 2);
   }
-  function toScreen(id) { const n = G.nodes.get(id); return { x: transform.offX + n.x * transform.scale, y: transform.offY + n.y * transform.scale }; }
-  function nearestNode(sx, sy) {
-    let best = null, bd = Infinity;
-    for (const n of G.nodes.values()) { const p = toScreen(n.id); const d = (p.x - sx) ** 2 + (p.y - sy) ** 2; if (d < bd) { bd = d; best = n.id; } }
-    return { node: best, dist: Math.sqrt(bd) };
-  }
+  function nearestNode(sx, sy) { let best = null, bd = Infinity; for (const id of G.nodes.keys()) { const p = toScreen(id); const d = (p.x - sx) ** 2 + (p.y - sy) ** 2; if (d < bd) { bd = d; best = id; } } return { node: best, dist: Math.sqrt(bd) }; }
+  function screenToWorld(sx, sy) { const a = (sx - OFFX) / TW, b = (sy - OFFY) / TH; return { x: (a + b) / 2, y: (b - a) / 2 }; }
 
+  // ── Map generation ──
   function rand(n) { return Math.floor(Math.random() * n); }
+  function parcelFor(id, taken) {
+    const p = cr(id), c = p[0], r = p[1];
+    const cands = [[c, r], [c - 1, r], [c, r - 1], [c - 1, r - 1]].filter(q => q[0] >= 0 && q[1] >= 0 && q[0] < COLS - 1 && q[1] < ROWS - 1);
+    for (const cand of cands) { const k = cand.join(','); if (!taken.has(k)) { taken.add(k); return cand; } }
+    return cands[0] || [Math.min(c, COLS - 2), Math.min(r, ROWS - 2)];
+  }
   function genMap() {
-    G = makeGrid(COLS, ROWS, CELL);
+    G = makeGrid(COLS, ROWS);
     const ids = [...G.nodes.keys()];
-    function pick(exclude, minSep) {
-      for (let t = 0; t < 400; t++) {
-        const id = ids[rand(ids.length)];
-        if (exclude.some(e => nodeDist(G, e, id) < minSep)) continue;
-        return id;
-      }
-      return ids[rand(ids.length)];
-    }
+    function pick(exclude, minSep) { for (let t = 0; t < 400; t++) { const id = ids[rand(ids.length)]; if (exclude.some(e => nodeDist(e, id) < minSep)) continue; return id; } return ids[rand(ids.length)]; }
     const pickup = pick([], 0);
-    const d1 = pick([pickup], 3);
-    const d2 = pick([pickup, d1], 3);
-    const d3 = pick([pickup, d1, d2], 3);
+    const d1 = pick([pickup], 3), d2 = pick([pickup, d1], 3), d3 = pick([pickup, d1, d2], 3);
     const dropNodes = [d1, d2, d3];
-    const routeDist = (order) => { let d = dijkstra(G, pickup, order[0]); for (let i = 1; i < order.length; i++) d += dijkstra(G, order[i - 1], order[i]); return d; };
+    const routeDist = (o) => { let d = dijkstra(G, pickup, o[0]); for (let i = 1; i < o.length; i++) d += dijkstra(G, o[i - 1], o[i]); return d; };
     const optimal = Math.min(...perms(dropNodes).map(routeDist));
     const taken = new Set();
     const pickupParcel = parcelFor(pickup, taken);
     state = { pickup, pickupParcel, drops: dropNodes.map(n => ({ node: n, done: false, parcel: parcelFor(n, taken) })), path: [], drawing: false, finished: false, optimal };
   }
 
-  // ── Drawing the traced route ──
-  function pathLength() {
-    let d = 0;
-    for (let i = 1; i < state.path.length; i++) d += nodeDist(G, state.path[i - 1], state.path[i]);
-    return d;
-  }
-  function markDeliveries() {
-    for (const drop of state.drops) if (!drop.done && state.path.includes(drop.node)) { drop.done = true; onDelivered(drop); }
-  }
-  function onDelivered(drop) {
-    const from = toScreen(state.path[state.path.length - 1] || drop.node), to = parcelCenter(drop.parcel);
-    spawnPackage(from, to); spawnConfetti(to.x, to.y, '#34d36b'); sfxDing();
-  }
-  // Step the path toward the mouse, one road-hop at a time (can't skip nodes).
+  // ── Route logic ──
+  function pathLength() { let d = 0; for (let i = 1; i < state.path.length; i++) d += nodeDist(state.path[i - 1], state.path[i]); return d; }
+  function markDeliveries() { for (const drop of state.drops) if (!drop.done && state.path.includes(drop.node)) { drop.done = true; onDelivered(drop); } }
+  function onDelivered(drop) { const from = toScreen(state.path[state.path.length - 1] || drop.node), to = parcelCenter(drop.parcel); spawnPackage(from, { x: to.x, y: to.y - ZS * 0.4 }); spawnConfetti(to.x, to.y - ZS * 0.4, '#34d36b'); sfxDing(); }
   function stepToward(sx, sy) {
+    const w = screenToWorld(sx, sy); // step on the grid in world space (works in any projection)
     let moved = false, guard = 0;
     while (guard++ < 400) {
-      const tail = state.path[state.path.length - 1];
-      const tp = toScreen(tail);
-      const tailD = Math.hypot(tp.x - sx, tp.y - sy);
-      let bestN = null, bestD = tailD - 0.5; // must get strictly closer to the cursor
-      for (const nb of G.adj.get(tail)) {
-        const p = toScreen(nb); const d = Math.hypot(p.x - sx, p.y - sy);
-        if (d < bestD) { bestD = d; bestN = nb; }
-      }
+      const tail = state.path[state.path.length - 1], t = cr(tail), tailD = Math.hypot(t[0] - w.x, t[1] - w.y);
+      let bestN = null, bestD = tailD - 0.001;
+      for (const nb of G.adj.get(tail)) { const p = cr(nb), d = Math.hypot(p[0] - w.x, p[1] - w.y); if (d < bestD) { bestD = d; bestN = nb; } }
       if (!bestN) break;
       state.path.push(bestN); moved = true;
     }
@@ -191,257 +164,261 @@
     return moved;
   }
 
-  // ── Render ──
-  function buildBase() {
-    const off = document.createElement('canvas'); off.width = canvas.width; off.height = canvas.height;
-    const g = off.getContext('2d');
-    g.fillStyle = '#dbe3d2'; g.fillRect(0, 0, off.width, off.height);
-    const stopParcels = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
-    const rr = Math.max(5, transform.scale * 0.09);
-    for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
-      const a = worldXY(pc * CELL, pr * CELL), b = worldXY((pc + 1) * CELL, (pr + 1) * CELL);
-      const inset = Math.max(5, transform.scale * 0.07);
-      const x = a.x + inset, y = a.y + inset, w = (b.x - a.x) - inset * 2, h = (b.y - a.y) - inset * 2;
-      const type = stopParcels.has(pc + ',' + pr) ? 'lawn' : ['park', 'office', 'lawn', 'parking', 'office', 'plaza'][(pc * 5 + pr * 7) % 6];
-      drawBlock(g, type, x, y, w, h, rr, pc, pr);
-    }
-    drawRoads(g);
-    baseLayer = off;
-  }
-  function drawBlock(g, type, x, y, w, h, rr, pc, pr) {
-    const base = type === 'parking' ? '#d8dbe1' : type === 'plaza' ? '#ece3cf' : type === 'park' ? '#bfe3a0' : '#e7ecdf';
-    g.fillStyle = base; roundRectPath(g, x, y, w, h, rr); g.fill();
-    g.fillStyle = 'rgba(255,255,255,.07)'; roundRectPath(g, x, y, w, h * 0.42, rr); g.fill();
-    for (let i = 0; i < 5; i++) { g.fillStyle = 'rgba(0,0,0,.025)'; g.beginPath(); g.arc(x + ((pc * 13 + pr * 7 + i * 53) % 100) / 100 * w, y + ((pr * 17 + pc * 11 + i * 31) % 100) / 100 * h, 1.4, 0, 7); g.fill(); }
-    const T = Math.max(6, transform.scale * 0.1);
-    if (type === 'park') {
-      g.fillStyle = '#a9d8ef'; g.beginPath(); g.ellipse(x + w * 0.62, y + h * 0.62, w * 0.22, h * 0.15, 0, 0, 7); g.fill();
-      tree(g, x + w * 0.28, y + h * 0.4, T); tree(g, x + w * 0.46, y + h * 0.72, T * 0.8);
-    } else if (type === 'office') {
-      const gap = w * 0.1, bw = (w - gap * 3) / 2, bh = (h - gap * 3) / 2;
-      for (let r2 = 0; r2 < 2; r2++) for (let c2 = 0; c2 < 2; c2++) {
-        if ((pc + pr + c2 * 2 + r2) % 5 === 0) continue;
-        const bx = x + gap + (bw + gap) * c2, by = y + gap + (bh + gap) * r2;
-        g.fillStyle = 'rgba(0,0,0,.08)'; roundRectPath(g, bx + 2, by + 3, bw, bh, 3); g.fill();
-        g.fillStyle = ['#cdd5df', '#c3ccd8', '#d6dce4'][(c2 + r2 + pc) % 3]; roundRectPath(g, bx, by, bw, bh, 3); g.fill();
-        g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(bx + bw * 0.18, by + bh * 0.18, bw * 0.22, bh * 0.22);
-      }
-    } else if (type === 'parking') {
-      g.strokeStyle = '#fff'; g.lineWidth = 2; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(x + w * i / 4, y + h * 0.18); g.lineTo(x + w * i / 4, y + h * 0.82); g.stroke(); }
-      g.fillStyle = '#e0705f'; roundRectPath(g, x + w * 0.08, y + h * 0.32, w * 0.15, h * 0.36, 3); g.fill();
-      g.fillStyle = '#5aa9d6'; roundRectPath(g, x + w * 0.55, y + h * 0.34, w * 0.15, h * 0.34, 3); g.fill();
-    } else if (type === 'plaza') {
-      g.fillStyle = '#bcd9e8'; g.beginPath(); g.arc(x + w * 0.5, y + h * 0.5, Math.min(w, h) * 0.17, 0, 7); g.fill();
-      g.fillStyle = '#9cc3d6'; g.beginPath(); g.arc(x + w * 0.5, y + h * 0.5, Math.min(w, h) * 0.07, 0, 7); g.fill();
-      tree(g, x + w * 0.22, y + h * 0.26, T * 0.8);
-    } else { if (((pc * 31 + pr * 17) % 6) < 2) tree(g, x + w * 0.5, y + h * 0.55, T); }
-  }
-  function drawRoads(g) {
-    g.lineCap = 'round'; g.lineJoin = 'round';
-    const lw = Math.max(11, transform.scale * 0.2);
-    const edges = () => { for (const [id, list] of G.adj) { const a = toScreen(id); for (const v of list) { const b = toScreen(v); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } } };
-    g.strokeStyle = '#d9dde2'; g.lineWidth = lw + 7; edges();
-    g.strokeStyle = '#ffffff'; g.lineWidth = lw; edges();
-    g.strokeStyle = 'rgba(243,201,105,.5)'; g.lineWidth = Math.max(1.5, lw * 0.09); g.setLineDash([transform.scale * 0.13, transform.scale * 0.2]); edges(); g.setLineDash([]);
-    g.fillStyle = '#ffffff'; for (const id of G.nodes.keys()) { const p = toScreen(id); g.beginPath(); g.arc(p.x, p.y, lw * 0.55, 0, 7); g.fill(); }
-    g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = Math.max(1.5, lw * 0.13);
-    for (const [id, list] of G.adj) {
-      const a = toScreen(id);
-      for (const v of list) {
-        const b = toScreen(v), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue;
-        const ux = dx / L, uy = dy / L, px = -uy, py = ux, d0 = lw * 0.85;
-        for (let st = -1; st <= 1; st++) { const cx = a.x + ux * (d0 + st * lw * 0.22), cy = a.y + uy * (d0 + st * lw * 0.22); g.beginPath(); g.moveTo(cx + px * lw * 0.42, cy + py * lw * 0.42); g.lineTo(cx - px * lw * 0.42, cy - py * lw * 0.42); g.stroke(); }
-      }
-    }
-  }
-  function worldXY(wx, wy) { return { x: transform.offX + wx * transform.scale, y: transform.offY + wy * transform.scale }; }
-  function parcelCenter(parcel) { return worldXY((parcel[0] + 0.5) * CELL, (parcel[1] + 0.5) * CELL); }
-  function buildSize() { return Math.max(30, transform.scale * 0.5); }
-  function parcelFor(nodeId, taken) {
-    const p = nodeId.split(','), c = +p[0], r = +p[1];
-    const cands = [[c, r], [c - 1, r], [c, r - 1], [c - 1, r - 1]].filter(q => q[0] >= 0 && q[1] >= 0 && q[0] < COLS - 1 && q[1] < ROWS - 1);
-    for (const cand of cands) { const k = cand.join(','); if (!taken.has(k)) { taken.add(k); return cand; } }
-    return cands[0] || [Math.min(c, COLS - 2), Math.min(r, ROWS - 2)];
-  }
-  function roundRectPath(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
-  function strokePts(pts) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); }
-  function tree(g, x, y, r) {
-    g.save(); g.fillStyle = 'rgba(0,0,0,.12)'; g.beginPath(); g.ellipse(x, y + r * 0.7, r * 0.95, r * 0.4, 0, 0, 7); g.fill();
-    g.fillStyle = '#4f7d34'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill();
-    g.fillStyle = '#67a046'; g.beginPath(); g.arc(x - r * 0.32, y - r * 0.32, r * 0.6, 0, 7); g.fill(); g.restore();
-  }
-  function labelBubble(cx, cy, text, color) {
-    ctx.save(); const fs = Math.max(13, transform.scale * 0.2); ctx.font = '800 ' + fs + 'px Inter, system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    const w = Math.max(ctx.measureText(text).width + fs * 1.1, fs * 1.7), h = fs * 1.5;
-    ctx.shadowColor = 'rgba(0,0,0,.35)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
-    ctx.fillStyle = color; roundRectPath(ctx, cx - w / 2, cy - h / 2, w, h, h / 2); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(cx - h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx + h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx, cy + h / 2 + h * 0.45); ctx.closePath(); ctx.fill();
-    ctx.shadowColor = 'transparent'; ctx.fillStyle = '#fff'; ctx.fillText(text, cx, cy); ctx.restore();
-  }
-  function drawHouse(cx, cy, s, color, label, done) {
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(cx, cy + s * 0.5, s * 0.6, s * 0.2, 0, 0, 7); ctx.fill();
-    const w = s * 0.92, h = s * 0.58, x = cx - w / 2, y = cy - h * 0.08;
-    ctx.fillStyle = '#fbf7ef'; roundRectPath(ctx, x, y, w, h, 3); ctx.fill();
-    ctx.fillStyle = done ? '#2ecc71' : color; ctx.fillRect(cx - w * 0.13, y + h * 0.42, w * 0.26, h * 0.58);
-    ctx.fillStyle = '#bcd6ea'; ctx.fillRect(x + w * 0.12, y + h * 0.4, w * 0.2, w * 0.2);
-    ctx.fillStyle = done ? '#27ae60' : color; ctx.beginPath(); ctx.moveTo(x - w * 0.07, y + 1); ctx.lineTo(cx, y - h * 0.5); ctx.lineTo(x + w + w * 0.07, y + 1); ctx.closePath(); ctx.fill();
-    ctx.restore();
-    labelBubble(cx, cy - h * 0.55 - s * 0.36, done ? '✓' : label, done ? '#2ecc71' : color);
-  }
-  function drawShop(cx, cy, s) {
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.beginPath(); ctx.ellipse(cx, cy + s * 0.5, s * 0.66, s * 0.2, 0, 0, 7); ctx.fill();
-    const w = s * 1.05, h = s * 0.55, x = cx - w / 2, y = cy - h * 0.03;
-    ctx.fillStyle = '#fff6ea'; roundRectPath(ctx, x, y, w, h, 3); ctx.fill();
-    const ah = h * 0.32, n = 6; for (let i = 0; i < n; i++) { ctx.fillStyle = i % 2 ? '#e8523a' : '#fbe9e2'; ctx.fillRect(x + i * (w / n), y, w / n, ah); }
-    ctx.fillStyle = '#7c5a3a'; ctx.fillRect(cx - w * 0.13, y + h * 0.45, w * 0.26, h * 0.55);
-    ctx.fillStyle = '#bcd6ea'; ctx.fillRect(x + w * 0.1, y + h * 0.42, w * 0.2, h * 0.26);
-    ctx.restore();
-    labelBubble(cx, cy - h * 0.55 - s * 0.36, '🍔', '#f59e0b');
-  }
-  function drawTruck(p, heading) {
-    const s = Math.max(18, transform.scale * 0.36), bob = Math.sin(anim.t * 0.008) * Math.max(1, transform.scale * 0.02);
-    ctx.save(); ctx.translate(p.x, p.y + bob); ctx.rotate(heading);
-    const cone = ctx.createLinearGradient(s * 0.5, 0, s * 1.7, 0); cone.addColorStop(0, 'rgba(255,235,150,.45)'); cone.addColorStop(1, 'rgba(255,235,150,0)');
-    ctx.fillStyle = cone; ctx.beginPath(); ctx.moveTo(s * 0.5, 0); ctx.lineTo(s * 1.7, -s * 0.55); ctx.lineTo(s * 1.7, s * 0.55); ctx.closePath(); ctx.fill();
-    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, s * 0.36, s * 0.7, s * 0.26, 0, 0, 7); ctx.fill();
-    const L = s * 1.35, H = s * 0.6;
-    ctx.fillStyle = '#eef4fc'; roundRectPath(ctx, -L / 2, -H / 2, L * 0.6, H, H * 0.22); ctx.fill();
-    ctx.fillStyle = '#2f6fed'; roundRectPath(ctx, -L / 2 + L * 0.54, -H * 0.5, L * 0.46, H, H * 0.28); ctx.fill();
-    ctx.fillStyle = '#cfe6f5'; roundRectPath(ctx, -L / 2 + L * 0.68, -H * 0.32, L * 0.24, H * 0.46, 2); ctx.fill();
-    ctx.fillStyle = '#1f2937'; ctx.beginPath(); ctx.arc(-L * 0.2, H * 0.52, H * 0.2, 0, 7); ctx.arc(L * 0.32, H * 0.52, H * 0.2, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fde68a'; ctx.beginPath(); ctx.arc(L * 0.48, 0, H * 0.1, 0, 7); ctx.fill();
-    ctx.restore();
-  }
-  function stopMarker(node, color, done) {
-    const p = toScreen(node);
-    ctx.save();
-    ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.arc(p.x, p.y, 9, 0, 7); ctx.fill();
-    ctx.fillStyle = done ? '#2ecc71' : color; ctx.beginPath(); ctx.arc(p.x, p.y, 7, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, 7); ctx.fill(); ctx.restore();
-  }
-  function driveway(node, parcel, color) {
-    const a = toScreen(node), b = parcelCenter(parcel);
-    ctx.save(); ctx.strokeStyle = color; ctx.globalAlpha = 0.45; ctx.lineWidth = Math.max(2, transform.scale * 0.05);
-    ctx.setLineDash([transform.scale * 0.08, transform.scale * 0.08]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-    ctx.setLineDash([]); ctx.restore();
-  }
-  // ── Audio + particles + animation loop ──
+  // ── Audio + particles ──
   function ensureAudio() { if (actx) return; try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
-  function beep(freq, dur, type, vol) { if (!actx) return; const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime; o.type = type || 'sine'; o.frequency.value = freq; gn.gain.setValueAtTime(vol || 0.07, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + dur); }
+  function beep(f, dur, type, vol) { if (!actx) return; const o = actx.createOscillator(), g = actx.createGain(), t = actx.currentTime; o.type = type || 'sine'; o.frequency.value = f; g.gain.setValueAtTime(vol || 0.07, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t + dur); }
   function sfxStart() { beep(420, 0.12, 'triangle', 0.05); }
   function sfxDing() { beep(880, 0.1, 'sine', 0.08); beep(1320, 0.14, 'sine', 0.04); }
-  function sfxWin() { [523, 659, 784, 1047].forEach((f) => beep(f, 0.22, 'triangle', 0.06)); }
-  function spawnConfetti(x, y, color) { for (let i = 0; i < 22; i++) { const a = (i / 22) * 6.283, sp = 2 + (i % 5); anim.parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, r: 3 + (i % 3), color: ['#ffd23f', '#34d36b', color, '#fff'][i % 4] }); } }
-  function spawnStar() { const cx = canvas.width / 2, cy = canvas.height * 0.42; for (let i = 0; i < 46; i++) { const a = (i / 46) * 6.283, sp = 3 + (i % 7); anim.parts.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1.4, r: 3 + (i % 4), color: ['#ffd23f', '#34d36b', '#2f6fed', '#ec4899', '#fff'][i % 5] }); } }
+  function sfxWin() { [523, 659, 784, 1047].forEach(f => beep(f, 0.22, 'triangle', 0.06)); }
+  function spawnConfetti(x, y, c) { for (let i = 0; i < 24; i++) { const a = (i / 24) * 6.283, sp = 2 + (i % 5); anim.parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, r: 3 + (i % 3), color: ['#ffd23f', '#34d36b', c, '#fff'][i % 4] }); } }
+  function spawnStar() { const cx = canvas.width / 2, cy = canvas.height * 0.42; for (let i = 0; i < 48; i++) { const a = (i / 48) * 6.283, sp = 3 + (i % 7); anim.parts.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1.4, r: 3 + (i % 4), color: ['#ffd23f', '#34d36b', '#2f6fed', '#ec4899', '#fff'][i % 5] }); } }
   function spawnPackage(from, to) { anim.parts.push({ pkg: true, x: from.x, y: from.y, fx: from.x, fy: from.y, tx: to.x, ty: to.y, p: 0 }); }
   function updateParts(dt) {
     for (const p of anim.parts) {
-      if (p.pkg) { p.p += dt * 2.4; const e = Math.min(1, p.p); p.x = p.fx + (p.tx - p.fx) * e; p.y = p.fy + (p.ty - p.fy) * e - Math.sin(e * Math.PI) * 34; }
+      if (p.pkg) { p.p += dt * 2.4; const e = Math.min(1, p.p); p.x = p.fx + (p.tx - p.fx) * e; p.y = p.fy + (p.ty - p.fy) * e - Math.sin(e * Math.PI) * 36; }
       else { p.vy += 0.16; p.x += p.vx; p.y += p.vy; p.life -= dt * 1.2; }
     }
     anim.parts = anim.parts.filter(p => p.pkg ? p.p < 1.05 : p.life > 0);
   }
   function drawParts() {
     for (const p of anim.parts) {
-      if (p.pkg) { ctx.save(); ctx.fillStyle = '#cf9248'; ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = 2; const s = Math.max(10, transform.scale * 0.18); ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); ctx.strokeRect(p.x - s / 2, p.y - s / 2, s, s); ctx.beginPath(); ctx.moveTo(p.x - s / 2, p.y); ctx.lineTo(p.x + s / 2, p.y); ctx.moveTo(p.x, p.y - s / 2); ctx.lineTo(p.x, p.y + s / 2); ctx.stroke(); ctx.restore(); }
+      if (p.pkg) { ctx.save(); ctx.fillStyle = '#cf9248'; ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = 2; const s = Math.max(10, ZS * 0.16); ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); ctx.strokeRect(p.x - s / 2, p.y - s / 2, s, s); ctx.beginPath(); ctx.moveTo(p.x - s / 2, p.y); ctx.lineTo(p.x + s / 2, p.y); ctx.moveTo(p.x, p.y - s / 2); ctx.lineTo(p.x, p.y + s / 2); ctx.stroke(); ctx.restore(); }
       else { ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
     }
   }
+
+  // ── Iso draw helpers ──
+  function shade(hex, f) { // lighten(<1 darken) a hex color
+    const n = parseInt(hex.slice(1), 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
+    r = Math.max(0, Math.min(255, r * f)); g = Math.max(0, Math.min(255, g * f)); b = Math.max(0, Math.min(255, b * f));
+    return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')';
+  }
+  function poly(pts, fill, stroke) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); } }
+  function shadowDiamond(wx, wy, fw, fh) {
+    const off = 0.14;
+    const c = [iso(wx - fw + off, wy - fh + off), iso(wx + fw + off, wy - fh + off), iso(wx + fw + off, wy + fh + off), iso(wx - fw + off, wy + fh + off)];
+    ctx.save(); ctx.globalAlpha = 0.22; poly(c, '#0b1020'); ctx.restore();
+  }
+  // Extruded box centered at (wx,wy) ground, half-footprint hw×hh, height h. Returns top-center screen for labels.
+  function box(wx, wy, hw, hh, h, topCol, opts) {
+    opts = opts || {};
+    const bTL = iso(wx - hw, wy - hh, 0), bTR = iso(wx + hw, wy - hh, 0), bBR = iso(wx + hw, wy + hh, 0), bBL = iso(wx - hw, wy + hh, 0);
+    const tTL = iso(wx - hw, wy - hh, h), tTR = iso(wx + hw, wy - hh, h), tBR = iso(wx + hw, wy + hh, h), tBL = iso(wx - hw, wy + hh, h);
+    poly([bTR, bBR, tBR, tTR], shade(topCol, 0.74)); // right wall (max wx)
+    poly([bBL, bBR, tBR, tBL], shade(topCol, 0.6));  // left wall (max wy)
+    poly([tTL, tTR, tBR, tBL], shade(topCol, 1.06)); // top
+    if (opts.windows) {
+      // window grid on the two visible walls
+      const wins = (a, b, top, bot, cols, rows) => {
+        for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+          const u0 = (i + 0.22) / cols, u1 = (i + 0.78) / cols, v0 = (j + 0.22) / rows, v1 = (j + 0.78) / rows;
+          const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+          const lerp2 = (uu, vv) => { const top2 = L(a.t, b.t, uu), bot2 = L(a.b, b.b, uu); return L(top2, bot2, vv); };
+          poly([lerp2(u0, v0), lerp2(u1, v0), lerp2(u1, v1), lerp2(u0, v1)], opts.win || 'rgba(180,210,235,.85)');
+        }
+      };
+      wins({ t: tTR, b: bTR }, { t: tBR, b: bBR }, 0, 0, 2, 3); // right wall
+      wins({ t: tBL, b: bBL }, { t: tBR, b: bBR }, 0, 0, 2, 3); // left wall
+    }
+    return { top: iso(wx, wy, h), tTL, tTR, tBR, tBL };
+  }
+  function drawOffice(wx, wy, seed) {
+    const h = 0.45 + (seed % 4) * 0.28;
+    const col = ['#cdd6e0', '#c2ccd8', '#d7dde6', '#b9c6d4'][seed % 4];
+    shadowDiamond(wx, wy, 0.34, 0.34);
+    box(wx, wy, 0.32, 0.32, h, col, { windows: true, win: 'rgba(120,160,200,.7)' });
+  }
+  function drawTree(wx, wy, scale) {
+    scale = scale || 1;
+    shadowDiamond(wx, wy, 0.13 * scale, 0.13 * scale);
+    const base = iso(wx, wy, 0), trunkH = 0.12 * scale, topH = 0.42 * scale;
+    const t0 = iso(wx, wy, trunkH);
+    ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = Math.max(3, ZS * 0.05 * scale); ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(base.x, base.y); ctx.lineTo(t0.x, t0.y); ctx.stroke();
+    const c = iso(wx, wy, topH), r = ZS * 0.2 * scale;
+    ctx.fillStyle = '#3f6f2f'; ctx.beginPath(); ctx.arc(c.x, c.y, r, 0, 7); ctx.fill();
+    ctx.fillStyle = '#5a9440'; ctx.beginPath(); ctx.arc(c.x - r * 0.3, c.y - r * 0.3, r * 0.7, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.arc(c.x - r * 0.4, c.y - r * 0.45, r * 0.35, 0, 7); ctx.fill();
+  }
+  function drawCar(wx, wy, col) {
+    shadowDiamond(wx, wy, 0.18, 0.1);
+    box(wx, wy, 0.16, 0.09, 0.12, col);
+  }
+  function labelBubble(cx, cy, text, color) {
+    ctx.save(); const fs = Math.max(13, TW * 0.42); ctx.font = '800 ' + fs + 'px Inter, system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const w = Math.max(ctx.measureText(text).width + fs * 1.1, fs * 1.7), h = fs * 1.5;
+    ctx.shadowColor = 'rgba(0,0,0,.4)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 2;
+    roundRect(cx - w / 2, cy - h / 2, w, h, h / 2); ctx.fillStyle = color; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx - h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx + h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx, cy + h / 2 + h * 0.45); ctx.closePath(); ctx.fill();
+    ctx.shadowColor = 'transparent'; ctx.fillStyle = '#fff'; ctx.fillText(text, cx, cy); ctx.restore();
+  }
+  function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+
+  function drawHouse(wx, wy, color, label, done) {
+    const wall = '#f4efe4', wallH = 0.34, hw = 0.3, hh = 0.3, roofH = 0.3, rc = done ? '#2ecc71' : color;
+    shadowDiamond(wx, wy, hw + 0.04, hh + 0.04);
+    box(wx, wy, hw, hh, wallH, wall);
+    // door + window on right wall (max wx)
+    const dr = (u0, u1, v0, v1, fill) => { const a = iso(wx + hw, wy - hh, 0), b = iso(wx + hw, wy + hh, 0), at = iso(wx + hw, wy - hh, wallH), bt = iso(wx + hw, wy + hh, wallH); const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t }); const f = (uu, vv) => { const tp = L(at, bt, uu), bp = L(a, b, uu); return L(tp, bp, vv); }; poly([f(u0, v0), f(u1, v0), f(u1, v1), f(u0, v1)], fill); };
+    dr(0.32, 0.62, 0.05, 0.85, rc);            // door
+    dr(0.66, 0.9, 0.12, 0.45, '#bcd6ea');      // window
+    // hip roof: apex above center
+    const apex = iso(wx, wy, wallH + roofH);
+    const tTL = iso(wx - hw, wy - hh, wallH), tTR = iso(wx + hw, wy - hh, wallH), tBR = iso(wx + hw, wy + hh, wallH), tBL = iso(wx - hw, wy + hh, wallH);
+    poly([tTR, tBR, apex], shade(rc, 0.82));   // right slope
+    poly([tBL, tBR, apex], shade(rc, 0.68));   // left slope (front)
+    poly([tTL, tTR, apex], shade(rc, 1.04));   // back-right (lit)
+    poly([tTL, tBL, apex], shade(rc, 0.9));
+    labelBubble(apex.x, apex.y - ZS * 0.32, done ? '✓' : label, rc);
+  }
+  function drawShop(wx, wy) {
+    const wall = '#f3ece0', wallH = 0.36, hw = 0.32, hh = 0.32;
+    shadowDiamond(wx, wy, hw + 0.05, hh + 0.05);
+    box(wx, wy, hw, hh, wallH, wall);
+    // red awning band across the two front walls (top portion)
+    const band = (corner) => { // corner: 'right' or 'left'
+      const a = corner === 'right' ? iso(wx + hw, wy - hh, 0) : iso(wx - hw, wy + hh, 0);
+      const b = iso(wx + hw, wy + hh, 0);
+      const at = corner === 'right' ? iso(wx + hw, wy - hh, wallH) : iso(wx - hw, wy + hh, wallH);
+      const bt = iso(wx + hw, wy + hh, wallH);
+      const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+      const f = (uu, vv) => { const tp = L(at, bt, uu), bp = L(a, b, uu); return L(tp, bp, vv); };
+      for (let i = 0; i < 4; i++) poly([f(i / 4, 0.06), f((i + 1) / 4, 0.06), f((i + 1) / 4, 0.34), f(i / 4, 0.34)], i % 2 ? '#e8523a' : '#fbe9e2');
+      f && poly([f(0.34, 0.5), f(0.62, 0.5), f(0.62, 0.95), f(0.34, 0.95)], '#7c5a3a'); // door
+    };
+    band('right'); band('left');
+    const top = iso(wx, wy, wallH);
+    labelBubble(top.x, top.y - ZS * 0.18, '🍔', '#f59e0b');
+  }
+  function drawVan(wx, wy, dir) {
+    // dir: [dc,dr] world direction along the road (axis-aligned). Long axis follows it.
+    const along = Math.abs(dir[0]) >= Math.abs(dir[1]); // true => along x
+    const hw = along ? 0.26 : 0.13, hh = along ? 0.13 : 0.26, H = 0.26;
+    shadowDiamond(wx, wy, hw + 0.03, hh + 0.03);
+    box(wx, wy, hw, hh, H, '#eef2f8');
+    // cab (blue) at leading end
+    const lead = [Math.sign(dir[0] || 0), Math.sign(dir[1] || 0)];
+    const cx = wx + lead[0] * (along ? 0.13 : 0), cy = wy + lead[1] * (along ? 0 : 0.13);
+    box(cx, cy, along ? 0.1 : 0.12, along ? 0.12 : 0.1, H * 1.04, '#2f6fed');
+    // headlight glow forward
+    const hp = iso(wx + lead[0] * (hw + 0.05), wy + lead[1] * (hh + 0.05), H * 0.4);
+    const gr = ctx.createRadialGradient(hp.x, hp.y, 1, hp.x, hp.y, ZS * 0.5); gr.addColorStop(0, 'rgba(255,240,170,.6)'); gr.addColorStop(1, 'rgba(255,240,170,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(hp.x, hp.y, ZS * 0.5, 0, 7); ctx.fill();
+  }
+
+  // ── Base layer (ground tiles + roads, baked) ──
+  function blockType(pc, pr, stops) { return stops.has(pc + ',' + pr) ? 'lawn' : ['park', 'office', 'lawn', 'parking', 'office', 'plaza'][(pc * 5 + pr * 7) % 6]; }
+  function buildBase() {
+    const off = document.createElement('canvas'); off.width = canvas.width; off.height = canvas.height; const g = off.getContext('2d');
+    const sky = g.createLinearGradient(0, 0, 0, off.height); sky.addColorStop(0, 'rgba(40,52,80,0)'); sky.addColorStop(1, 'rgba(8,12,20,0)'); g.fillStyle = sky; g.fillRect(0, 0, off.width, off.height);
+    // soft platform shadow under the whole diamond
+    const cAll = [iso(0, 0), iso(COLS - 1, 0), iso(COLS - 1, ROWS - 1), iso(0, ROWS - 1)];
+    g.save(); g.globalAlpha = 0.28; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 40; g.fillStyle = '#05070d';
+    g.beginPath(); cAll.forEach((p, i) => i ? g.lineTo(p.x, p.y + 14) : g.moveTo(p.x, p.y + 14)); g.closePath(); g.fill(); g.restore();
+    const stops = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
+    const isoG = (wx, wy) => iso(wx, wy, 0);
+    const polyG = (pts, fill, stroke, lw) => { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.closePath(); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw || 1; g.stroke(); } };
+    // tiles
+    const e = 0.09;
+    for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
+      const type = blockType(pc, pr, stops);
+      const A = isoG(pc + e, pr + e), B = isoG(pc + 1 - e, pr + e), C = isoG(pc + 1 - e, pr + 1 - e), D = isoG(pc + e, pr + 1 - e);
+      const col = type === 'parking' ? '#cfd3da' : type === 'plaza' ? '#dcd3bf' : type === 'park' ? '#9fce78' : ['#c4d3a6', '#bccd9c', '#cbd8af'][(pc + pr) % 3];
+      polyG([A, B, C, D], col); polyG([A, B, C, D], null, 'rgba(0,0,0,.06)', 1);
+      g.save(); g.globalAlpha = 0.12; polyG([A, B, isoG(pc + 0.5, pr + 0.5)], '#ffffff'); g.restore();
+      if (type === 'park') { const p = isoG(pc + 0.62, pr + 0.6); g.fillStyle = '#7fc4e8'; g.beginPath(); g.ellipse(p.x, p.y, TW * 0.34, TH * 0.34, 0, 0, 7); g.fill(); }
+      if (type === 'parking') { g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2; for (let i = 1; i < 3; i++) { const s = isoG(pc + e + (1 - 2 * e) * i / 3, pr + e), t = isoG(pc + e + (1 - 2 * e) * i / 3, pr + 1 - e); g.beginPath(); g.moveTo(s.x, s.y); g.lineTo(t.x, t.y); g.stroke(); } }
+      if (type === 'plaza') { const p = isoG(pc + 0.5, pr + 0.5); g.fillStyle = '#bcd9e8'; g.beginPath(); g.ellipse(p.x, p.y, TW * 0.3, TH * 0.3, 0, 0, 7); g.fill(); }
+    }
+    // roads
+    g.lineCap = 'round'; g.lineJoin = 'round';
+    const lw = Math.max(10, TW * 0.5);
+    const edges = () => { for (const [id, list] of G.adj) { const a = isoG(...cr(id)); for (const v of list) { const b = isoG(...cr(v)); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } } };
+    g.strokeStyle = '#9aa0aa'; g.lineWidth = lw + 6; edges();
+    g.strokeStyle = '#b8bcc4'; g.lineWidth = lw; edges();
+    g.strokeStyle = 'rgba(245,205,90,.7)'; g.lineWidth = Math.max(1.4, lw * 0.08); g.setLineDash([TW * 0.28, TW * 0.4]); edges(); g.setLineDash([]);
+    g.fillStyle = '#b8bcc4'; for (const id of G.nodes.keys()) { const p = isoG(...cr(id)); g.beginPath(); g.arc(p.x, p.y, lw * 0.55, 0, 7); g.fill(); }
+    baseLayer = off;
+  }
+
+  // ── Render ──
+  function render() {
+    if (!baseLayer) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(baseLayer, 0, 0);
+    // route on the ground (under props)
+    if (state.path.length > 1) {
+      const pts = state.path.map(toScreen); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+      ctx.strokeStyle = 'rgba(47,111,237,.28)'; ctx.lineWidth = Math.max(13, TW * 0.5); strokeP(pts);
+      ctx.strokeStyle = '#2f6fed'; ctx.lineWidth = Math.max(6, TW * 0.26); strokeP(pts);
+      ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(2, TW * 0.07);
+      ctx.setLineDash([TW * 0.22, TW * 0.34]); ctx.lineDashOffset = -(anim.t * 0.05) % 100000; strokeP(pts); ctx.setLineDash([]); ctx.lineDashOffset = 0;
+      drawChevrons(pts);
+    }
+    // road dots
+    stopDot(state.pickup, '#f59e0b'); state.drops.forEach((d, i) => stopDot(d.node, d.done ? '#2ecc71' : DROP_COLORS[i % 3]));
+    // depth-sorted props
+    const stops = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
+    const props = [];
+    for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
+      const type = blockType(pc, pr, stops); const wx = pc + 0.5, wy = pr + 0.5, d = wx + wy;
+      if (type === 'office') props.push({ d, fn: () => drawOffice(wx, wy, pc * 3 + pr) });
+      else if (type === 'park') { props.push({ d: d - 0.1, fn: () => drawTree(pc + 0.3, pr + 0.4, 1) }); props.push({ d: d + 0.1, fn: () => drawTree(pc + 0.62, pr + 0.72, 0.8) }); }
+      else if (type === 'parking') props.push({ d, fn: () => drawCar(wx, wy, ['#e0705f', '#5aa9d6', '#e6c14e'][(pc + pr) % 3]) });
+      else if (type === 'plaza') props.push({ d, fn: () => drawTree(pc + 0.3, pr + 0.3, 0.8) });
+      else if (((pc * 31 + pr * 17) % 6) < 2) props.push({ d, fn: () => drawTree(wx, wy, 1) });
+    }
+    const pp = state.pickupParcel; props.push({ d: pp[0] + pp[1] + 1, fn: () => drawShop(pp[0] + 0.5, pp[1] + 0.5) });
+    state.drops.forEach((dr, i) => { const p = dr.parcel; props.push({ d: p[0] + p[1] + 1, fn: () => drawHouse(p[0] + 0.5, p[1] + 0.5, DROP_COLORS[i % 3], String(i + 1), dr.done) }); });
+    if (state.path.length) {
+      const tail = cr(state.path[state.path.length - 1]); const prev = state.path[state.path.length - 2] ? cr(state.path[state.path.length - 2]) : tail;
+      const dir = [tail[0] - prev[0], tail[1] - prev[1]]; if (!dir[0] && !dir[1]) dir[0] = 1;
+      props.push({ d: tail[0] + tail[1] + 0.5, fn: () => drawVan(tail[0], tail[1], dir) });
+    }
+    props.sort((a, b) => a.d - b.d).forEach(p => p.fn());
+    // particles + HUD
+    drawParts();
+    const target = pathLength(); anim.dist += (target - anim.dist) * 0.25; if (Math.abs(target - anim.dist) < 0.05) anim.dist = target;
+    document.getElementById('youDist').textContent = anim.dist.toFixed(1) + ' mi';
+    document.getElementById('bestDist').textContent = state.optimal.toFixed(1) + ' mi';
+    document.getElementById('deliveredN').textContent = state.drops.filter(d => d.done).length + '/' + state.drops.length;
+  }
+  function strokeP(pts) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); }
+  function stopDot(node, color) { const p = toScreen(node); ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 10, 6, 0, 0, 7); ctx.fill(); ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(p.x, p.y, 7.5, 4.5, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 3, 1.8, 0, 0, 7); ctx.fill(); ctx.restore(); }
   function drawChevrons(pts) {
-    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = Math.max(2, transform.scale * 0.035); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    const step = Math.max(28, transform.scale * 0.5), size = Math.max(5, transform.scale * 0.1);
-    let acc = (anim.t * 0.05) % step;
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = Math.max(2, TW * 0.08); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const step = Math.max(26, TW * 1.1), size = Math.max(5, TW * 0.22); let acc = (anim.t * 0.05) % step;
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1], b = pts[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue;
       const ux = dx / L, uy = dy / L, px = -uy, py = ux;
-      for (let d = step - acc; d < L; d += step) { const cx = a.x + ux * d, cy = a.y + uy * d; ctx.beginPath(); ctx.moveTo(cx - ux * size + px * size, cy - uy * size + py * size); ctx.lineTo(cx, cy); ctx.lineTo(cx - ux * size - px * size, cy - uy * size - py * size); ctx.stroke(); }
+      for (let dd = step - acc; dd < L; dd += step) { const cx = a.x + ux * dd, cy = a.y + uy * dd; ctx.beginPath(); ctx.moveTo(cx - ux * size + px * size, cy - uy * size + py * size); ctx.lineTo(cx, cy); ctx.lineTo(cx - ux * size - px * size, cy - uy * size - py * size); ctx.stroke(); }
       acc = (acc + L) % step;
     }
     ctx.restore();
   }
   function loop(ts) { const dt = Math.min(0.05, (ts - lastT) / 1000) || 0.016; lastT = ts; anim.t = ts; updateParts(dt); render(); requestAnimationFrame(loop); }
 
-  const DROP_COLORS = ['#3b82f6', '#a855f7', '#ec4899'];
-  function render() {
-    if (!baseLayer) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(baseLayer, 0, 0);
-    // driveways from the road to each building
-    driveway(state.pickup, state.pickupParcel, '#f59e0b');
-    state.drops.forEach((d, i) => driveway(d.node, d.parcel, DROP_COLORS[i % 3]));
-    // traced route: glow + line + marching ants + chevrons
-    if (state.path.length > 1) {
-      const pts = state.path.map(toScreen); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(47,111,237,.22)'; ctx.lineWidth = Math.max(14, transform.scale * 0.24); strokePts(pts);
-      ctx.strokeStyle = '#2f6fed'; ctx.lineWidth = Math.max(7, transform.scale * 0.11); strokePts(pts);
-      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(2, transform.scale * 0.03);
-      ctx.setLineDash([transform.scale * 0.1, transform.scale * 0.16]); ctx.lineDashOffset = -(anim.t * 0.05) % 100000; strokePts(pts); ctx.setLineDash([]); ctx.lineDashOffset = 0;
-      drawChevrons(pts);
-    }
-    // road dots = where to drive to
-    stopMarker(state.pickup, '#f59e0b', false);
-    state.drops.forEach((d, i) => stopMarker(d.node, DROP_COLORS[i % 3], d.done));
-    // buildings sit inside the blocks
-    const s = buildSize();
-    const pc = parcelCenter(state.pickupParcel); drawShop(pc.x, pc.y, s);
-    state.drops.forEach((d, i) => { const c = parcelCenter(d.parcel); drawHouse(c.x, c.y, s, DROP_COLORS[i % 3], String(i + 1), d.done); });
-    // delivery van at the tail of the route
-    if (state.path.length) {
-      const tail = state.path[state.path.length - 1], prev = state.path[state.path.length - 2];
-      const p = toScreen(tail); let hd = 0; if (prev) { const q = toScreen(prev); hd = Math.atan2(p.y - q.y, p.x - q.x); }
-      drawTruck(p, hd);
-    }
-    // vignette + particles (confetti / package / star-burst)
-    const vg = ctx.createRadialGradient(canvas.width / 2, canvas.height * 0.52, Math.min(canvas.width, canvas.height) * 0.32, canvas.width / 2, canvas.height * 0.52, Math.max(canvas.width, canvas.height) * 0.75);
-    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.16)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, canvas.width, canvas.height);
-    drawParts();
-    // HUD numbers (distance counts up)
-    const target = pathLength(); anim.dist += (target - anim.dist) * 0.25; if (Math.abs(target - anim.dist) < 0.05) anim.dist = target;
-    document.getElementById('youDist').textContent = anim.dist.toFixed(1) + ' mi';
-    document.getElementById('bestDist').textContent = state.optimal.toFixed(1) + ' mi';
-    document.getElementById('deliveredN').textContent = state.drops.filter(d => d.done).length + '/' + state.drops.length;
-  }
-
-  // ── Pointer interaction ──
-  function evtPos(e) { const rect = canvas.getBoundingClientRect(); return { x: (e.clientX - rect.left) * (canvas.width / rect.width), y: (e.clientY - rect.top) * (canvas.height / rect.height) }; }
-  const R = 46; // grab radius (px)
-
+  // ── Interaction ──
+  function evtPos(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) }; }
+  const R = 48;
   function onDown(e) {
-    if (state.finished) return;
-    ensureAudio();
+    if (state.finished) return; ensureAudio();
     const { x, y } = evtPos(e);
     if (state.path.length === 0) {
       const pp = toScreen(state.pickup), pb = parcelCenter(state.pickupParcel);
-      if (Math.hypot(pp.x - x, pp.y - y) <= R || Math.hypot(pb.x - x, pb.y - y) <= R) { state.path = [state.pickup]; state.drawing = true; sfxStart(); markDeliveries(); render(); }
+      if (Math.hypot(pp.x - x, pp.y - y) <= R || Math.hypot(pb.x - x, pb.y - y) <= R + 20) { state.path = [state.pickup]; state.drawing = true; sfxStart(); markDeliveries(); render(); }
       else setHint('Start at the <b>🍔 pickup</b>!');
-    } else {
-      const tp = toScreen(state.path[state.path.length - 1]);
-      if (Math.hypot(tp.x - x, tp.y - y) <= R) { state.drawing = true; }
-    }
+    } else { const tp = toScreen(state.path[state.path.length - 1]); if (Math.hypot(tp.x - x, tp.y - y) <= R) state.drawing = true; }
   }
-  function onMove(e) {
-    if (!state.drawing || state.finished) return;
-    const { x, y } = evtPos(e);
-    if (stepToward(x, y)) render();
-  }
-  function onUp() {
-    if (!state.drawing) return;
-    state.drawing = false;
-    if (state.drops.every(d => d.done)) finish();
-    else setHint('Deliver to <b>all 3 🏠 houses</b> — keep dragging from the 🚚.');
-  }
-
+  function onMove(e) { if (!state.drawing || state.finished) return; const { x, y } = evtPos(e); if (stepToward(x, y)) render(); }
+  function onUp() { if (!state.drawing) return; state.drawing = false; if (state.drops.every(d => d.done)) finish(); else setHint('Deliver to <b>all 3 🏠 houses</b> — keep dragging from the 🚚.'); }
   function setHint(html) { document.getElementById('hint').innerHTML = html; }
 
   function finish() {
     state.finished = true;
-    const you = pathLength(), best = state.optimal;
-    const eff = best / you; // <= 1
+    const you = pathLength(), best = state.optimal, eff = best / you;
     let stars = 1, title = 'Delivered!';
-    if (eff >= 0.999) { stars = 3; title = 'Perfect Route!'; }
-    else if (eff >= 0.85) { stars = 2; title = 'Nice Driving!'; }
+    if (eff >= 0.999) { stars = 3; title = 'Perfect Route!'; } else if (eff >= 0.85) { stars = 2; title = 'Nice Driving!'; }
     const extra = Math.max(0, you - best);
     document.getElementById('card').innerHTML =
       '<h2>' + title + '</h2>' +
@@ -456,43 +433,31 @@
     document.getElementById('againBtn').addEventListener('click', newMap);
     sfxWin(); spawnStar();
   }
-
   function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
   function newMap() { genMap(); buildBase(); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
-
-  function relayout() { if (!sizeCanvas()) { setTimeout(relayout, 50); return; } transform = computeFit(canvas.width, canvas.height); buildBase(); render(); }
+  function relayout() { if (!sizeCanvas()) { setTimeout(relayout, 50); return; } computeFit(canvas.width, canvas.height); buildBase(); render(); }
 
   function boot() {
     if (!sizeCanvas()) { setTimeout(boot, 50); return; }
-    genMap();
-    transform = computeFit(canvas.width, canvas.height);
-    buildBase(); render();
-    window.addEventListener('pointerdown', onDown);
-    window.addEventListener('pointermove', onMove);
-    window.addEventListener('pointerup', onUp);
+    genMap(); computeFit(canvas.width, canvas.height); buildBase(); render();
+    window.addEventListener('pointerdown', onDown); window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp);
     window.addEventListener('resize', relayout);
     document.getElementById('newBtn').addEventListener('click', newMap);
     document.getElementById('resetBtn').addEventListener('click', reset);
     lastT = 0; requestAnimationFrame(loop);
-    // test hook (used for headless verification)
     window.MQ = {
-      state: () => state,
-      pathLength,
-      traceTo: (sx, sy) => { stepToward(sx, sy); render(); },
-      screenOf: (id) => toScreen(id),
-      autoSolve: () => { // trace the optimal order for verification
+      state: () => state, pathLength, screenOf: (id) => toScreen(id),
+      autoSolve: () => {
         const nodes = state.drops.map(d => d.node);
-        const rd = (order) => { let d = dijkstra(G, state.pickup, order[0]); for (let i = 1; i < order.length; i++) d += dijkstra(G, order[i - 1], order[i]); return d; };
-        let order = nodes, bestD = Infinity;
-        for (const p of perms(nodes)) { const d = rd(p); if (d < bestD) { bestD = d; order = p; } }
+        const rd = (o) => { let d = dijkstra(G, state.pickup, o[0]); for (let i = 1; i < o.length; i++) d += dijkstra(G, o[i - 1], o[i]); return d; };
+        let order = nodes, bd = Infinity; for (const p of perms(nodes)) { const d = rd(p); if (d < bd) { bd = d; order = p; } }
         state.path = [state.pickup]; state.drawing = true;
-        for (const target of order) { const p = toScreen(target); stepToward(p.x, p.y); }
-        state.drawing = false; markDeliveries();
-        if (state.drops.every(d => d.done)) finish();
+        for (const tgt of order) { const p = toScreen(tgt); stepToward(p.x, p.y); }
+        state.drawing = false; markDeliveries(); if (state.drops.every(d => d.done)) finish();
         return { you: pathLength(), best: state.optimal };
       },
     };
-    console.log('map quest booted');
+    console.log('map quest iso booted');
   }
   boot();
 })();
