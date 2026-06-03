@@ -57,10 +57,11 @@
     <div class="spacer"></div>
     <div class="stat"><div class="l">YOUR DISTANCE</div><div class="v you" id="youDist">0.0 mi</div></div>
     <div class="stat"><div class="l">SHORTEST</div><div class="v best" id="bestDist">0.0 mi</div></div>
+    <div class="stat"><div class="l">DELIVERED</div><div class="v" id="deliveredN">0/3</div></div>
     <button class="btn ghost" id="resetBtn">Reset</button>
     <button class="btn primary" id="newBtn">New Map</button>
   </div>
-  <div id="hint">Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.</div>
+  <div id="hint">Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.</div>
   <div id="overlay" class="hidden"><div class="card" id="card"></div></div>
 </div>
 
@@ -108,6 +109,8 @@
   const ctx = canvas.getContext('2d');
   let G, transform, baseLayer;
   let state = null; // { pickup, drops:[{node,done},..], path:[nodeId], drawing, finished }
+  const anim = { t: 0, dist: 0, parts: [] };
+  let actx = null, lastT = 0;
 
   const COLS = 7, ROWS = 6, CELL = 1;
 
@@ -163,7 +166,11 @@
     return d;
   }
   function markDeliveries() {
-    for (const drop of state.drops) if (!drop.done && state.path.includes(drop.node)) drop.done = true;
+    for (const drop of state.drops) if (!drop.done && state.path.includes(drop.node)) { drop.done = true; onDelivered(drop); }
+  }
+  function onDelivered(drop) {
+    const from = toScreen(state.path[state.path.length - 1] || drop.node), to = parcelCenter(drop.parcel);
+    spawnPackage(from, to); spawnConfetti(to.x, to.y, '#34d36b'); sfxDing();
   }
   // Step the path toward the mouse, one road-hop at a time (can't skip nodes).
   function stepToward(sx, sy) {
@@ -188,30 +195,64 @@
   function buildBase() {
     const off = document.createElement('canvas'); off.width = canvas.width; off.height = canvas.height;
     const g = off.getContext('2d');
-    const grad = g.createLinearGradient(0, 0, 0, off.height); grad.addColorStop(0, '#9ec471'); grad.addColorStop(1, '#84ab60');
-    g.fillStyle = grad; g.fillRect(0, 0, off.width, off.height);
+    g.fillStyle = '#dbe3d2'; g.fillRect(0, 0, off.width, off.height);
     const stopParcels = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
     const rr = Math.max(5, transform.scale * 0.09);
     for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
       const a = worldXY(pc * CELL, pr * CELL), b = worldXY((pc + 1) * CELL, (pr + 1) * CELL);
       const inset = Math.max(5, transform.scale * 0.07);
       const x = a.x + inset, y = a.y + inset, w = (b.x - a.x) - inset * 2, h = (b.y - a.y) - inset * 2;
-      g.fillStyle = ['#a7c585', '#9dbd79', '#b0cb8c', '#95b66f'][(pc * 7 + pr * 13) % 4];
-      roundRectPath(g, x, y, w, h, rr); g.fill();
-      g.fillStyle = 'rgba(255,255,255,.06)'; roundRectPath(g, x, y, w, h * 0.45, rr); g.fill();
-      if (!stopParcels.has(pc + ',' + pr)) {
-        const seed = (pc * 31 + pr * 17) % 6;
-        if (seed < 3) tree(g, x + w * [0.32, 0.7, 0.5][seed], y + h * [0.62, 0.4, 0.72][seed], Math.max(6, transform.scale * 0.1));
-      }
+      const type = stopParcels.has(pc + ',' + pr) ? 'lawn' : ['park', 'office', 'lawn', 'parking', 'office', 'plaza'][(pc * 5 + pr * 7) % 6];
+      drawBlock(g, type, x, y, w, h, rr, pc, pr);
     }
+    drawRoads(g);
+    baseLayer = off;
+  }
+  function drawBlock(g, type, x, y, w, h, rr, pc, pr) {
+    const base = type === 'parking' ? '#d8dbe1' : type === 'plaza' ? '#ece3cf' : type === 'park' ? '#bfe3a0' : '#e7ecdf';
+    g.fillStyle = base; roundRectPath(g, x, y, w, h, rr); g.fill();
+    g.fillStyle = 'rgba(255,255,255,.07)'; roundRectPath(g, x, y, w, h * 0.42, rr); g.fill();
+    for (let i = 0; i < 5; i++) { g.fillStyle = 'rgba(0,0,0,.025)'; g.beginPath(); g.arc(x + ((pc * 13 + pr * 7 + i * 53) % 100) / 100 * w, y + ((pr * 17 + pc * 11 + i * 31) % 100) / 100 * h, 1.4, 0, 7); g.fill(); }
+    const T = Math.max(6, transform.scale * 0.1);
+    if (type === 'park') {
+      g.fillStyle = '#a9d8ef'; g.beginPath(); g.ellipse(x + w * 0.62, y + h * 0.62, w * 0.22, h * 0.15, 0, 0, 7); g.fill();
+      tree(g, x + w * 0.28, y + h * 0.4, T); tree(g, x + w * 0.46, y + h * 0.72, T * 0.8);
+    } else if (type === 'office') {
+      const gap = w * 0.1, bw = (w - gap * 3) / 2, bh = (h - gap * 3) / 2;
+      for (let r2 = 0; r2 < 2; r2++) for (let c2 = 0; c2 < 2; c2++) {
+        if ((pc + pr + c2 * 2 + r2) % 5 === 0) continue;
+        const bx = x + gap + (bw + gap) * c2, by = y + gap + (bh + gap) * r2;
+        g.fillStyle = 'rgba(0,0,0,.08)'; roundRectPath(g, bx + 2, by + 3, bw, bh, 3); g.fill();
+        g.fillStyle = ['#cdd5df', '#c3ccd8', '#d6dce4'][(c2 + r2 + pc) % 3]; roundRectPath(g, bx, by, bw, bh, 3); g.fill();
+        g.fillStyle = 'rgba(255,255,255,.45)'; g.fillRect(bx + bw * 0.18, by + bh * 0.18, bw * 0.22, bh * 0.22);
+      }
+    } else if (type === 'parking') {
+      g.strokeStyle = '#fff'; g.lineWidth = 2; for (let i = 1; i < 4; i++) { g.beginPath(); g.moveTo(x + w * i / 4, y + h * 0.18); g.lineTo(x + w * i / 4, y + h * 0.82); g.stroke(); }
+      g.fillStyle = '#e0705f'; roundRectPath(g, x + w * 0.08, y + h * 0.32, w * 0.15, h * 0.36, 3); g.fill();
+      g.fillStyle = '#5aa9d6'; roundRectPath(g, x + w * 0.55, y + h * 0.34, w * 0.15, h * 0.34, 3); g.fill();
+    } else if (type === 'plaza') {
+      g.fillStyle = '#bcd9e8'; g.beginPath(); g.arc(x + w * 0.5, y + h * 0.5, Math.min(w, h) * 0.17, 0, 7); g.fill();
+      g.fillStyle = '#9cc3d6'; g.beginPath(); g.arc(x + w * 0.5, y + h * 0.5, Math.min(w, h) * 0.07, 0, 7); g.fill();
+      tree(g, x + w * 0.22, y + h * 0.26, T * 0.8);
+    } else { if (((pc * 31 + pr * 17) % 6) < 2) tree(g, x + w * 0.5, y + h * 0.55, T); }
+  }
+  function drawRoads(g) {
     g.lineCap = 'round'; g.lineJoin = 'round';
     const lw = Math.max(11, transform.scale * 0.2);
     const edges = () => { for (const [id, list] of G.adj) { const a = toScreen(id); for (const v of list) { const b = toScreen(v); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } } };
-    g.strokeStyle = '#cfc8b6'; g.lineWidth = lw + 7; edges();
-    g.strokeStyle = '#f7f2e7'; g.lineWidth = lw; edges();
-    g.strokeStyle = 'rgba(226,184,72,.6)'; g.lineWidth = Math.max(1.5, lw * 0.1); g.setLineDash([transform.scale * 0.13, transform.scale * 0.2]); edges(); g.setLineDash([]);
-    g.fillStyle = '#f7f2e7'; for (const id of G.nodes.keys()) { const p = toScreen(id); g.beginPath(); g.arc(p.x, p.y, lw * 0.5, 0, 7); g.fill(); }
-    baseLayer = off;
+    g.strokeStyle = '#d9dde2'; g.lineWidth = lw + 7; edges();
+    g.strokeStyle = '#ffffff'; g.lineWidth = lw; edges();
+    g.strokeStyle = 'rgba(243,201,105,.5)'; g.lineWidth = Math.max(1.5, lw * 0.09); g.setLineDash([transform.scale * 0.13, transform.scale * 0.2]); edges(); g.setLineDash([]);
+    g.fillStyle = '#ffffff'; for (const id of G.nodes.keys()) { const p = toScreen(id); g.beginPath(); g.arc(p.x, p.y, lw * 0.55, 0, 7); g.fill(); }
+    g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = Math.max(1.5, lw * 0.13);
+    for (const [id, list] of G.adj) {
+      const a = toScreen(id);
+      for (const v of list) {
+        const b = toScreen(v), dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue;
+        const ux = dx / L, uy = dy / L, px = -uy, py = ux, d0 = lw * 0.85;
+        for (let st = -1; st <= 1; st++) { const cx = a.x + ux * (d0 + st * lw * 0.22), cy = a.y + uy * (d0 + st * lw * 0.22); g.beginPath(); g.moveTo(cx + px * lw * 0.42, cy + py * lw * 0.42); g.lineTo(cx - px * lw * 0.42, cy - py * lw * 0.42); g.stroke(); }
+      }
+    }
   }
   function worldXY(wx, wy) { return { x: transform.offX + wx * transform.scale, y: transform.offY + wy * transform.scale }; }
   function parcelCenter(parcel) { return worldXY((parcel[0] + 0.5) * CELL, (parcel[1] + 0.5) * CELL); }
@@ -260,8 +301,10 @@
     labelBubble(cx, cy - h * 0.55 - s * 0.36, '🍔', '#f59e0b');
   }
   function drawTruck(p, heading) {
-    const s = Math.max(18, transform.scale * 0.36);
-    ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(heading);
+    const s = Math.max(18, transform.scale * 0.36), bob = Math.sin(anim.t * 0.008) * Math.max(1, transform.scale * 0.02);
+    ctx.save(); ctx.translate(p.x, p.y + bob); ctx.rotate(heading);
+    const cone = ctx.createLinearGradient(s * 0.5, 0, s * 1.7, 0); cone.addColorStop(0, 'rgba(255,235,150,.45)'); cone.addColorStop(1, 'rgba(255,235,150,0)');
+    ctx.fillStyle = cone; ctx.beginPath(); ctx.moveTo(s * 0.5, 0); ctx.lineTo(s * 1.7, -s * 0.55); ctx.lineTo(s * 1.7, s * 0.55); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(0, s * 0.36, s * 0.7, s * 0.26, 0, 0, 7); ctx.fill();
     const L = s * 1.35, H = s * 0.6;
     ctx.fillStyle = '#eef4fc'; roundRectPath(ctx, -L / 2, -H / 2, L * 0.6, H, H * 0.22); ctx.fill();
@@ -284,6 +327,42 @@
     ctx.setLineDash([transform.scale * 0.08, transform.scale * 0.08]); ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
     ctx.setLineDash([]); ctx.restore();
   }
+  // ── Audio + particles + animation loop ──
+  function ensureAudio() { if (actx) return; try { actx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+  function beep(freq, dur, type, vol) { if (!actx) return; const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime; o.type = type || 'sine'; o.frequency.value = freq; gn.gain.setValueAtTime(vol || 0.07, t); gn.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(gn); gn.connect(actx.destination); o.start(t); o.stop(t + dur); }
+  function sfxStart() { beep(420, 0.12, 'triangle', 0.05); }
+  function sfxDing() { beep(880, 0.1, 'sine', 0.08); beep(1320, 0.14, 'sine', 0.04); }
+  function sfxWin() { [523, 659, 784, 1047].forEach((f) => beep(f, 0.22, 'triangle', 0.06)); }
+  function spawnConfetti(x, y, color) { for (let i = 0; i < 22; i++) { const a = (i / 22) * 6.283, sp = 2 + (i % 5); anim.parts.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - 2, life: 1, r: 3 + (i % 3), color: ['#ffd23f', '#34d36b', color, '#fff'][i % 4] }); } }
+  function spawnStar() { const cx = canvas.width / 2, cy = canvas.height * 0.42; for (let i = 0; i < 46; i++) { const a = (i / 46) * 6.283, sp = 3 + (i % 7); anim.parts.push({ x: cx, y: cy, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp, life: 1.4, r: 3 + (i % 4), color: ['#ffd23f', '#34d36b', '#2f6fed', '#ec4899', '#fff'][i % 5] }); } }
+  function spawnPackage(from, to) { anim.parts.push({ pkg: true, x: from.x, y: from.y, fx: from.x, fy: from.y, tx: to.x, ty: to.y, p: 0 }); }
+  function updateParts(dt) {
+    for (const p of anim.parts) {
+      if (p.pkg) { p.p += dt * 2.4; const e = Math.min(1, p.p); p.x = p.fx + (p.tx - p.fx) * e; p.y = p.fy + (p.ty - p.fy) * e - Math.sin(e * Math.PI) * 34; }
+      else { p.vy += 0.16; p.x += p.vx; p.y += p.vy; p.life -= dt * 1.2; }
+    }
+    anim.parts = anim.parts.filter(p => p.pkg ? p.p < 1.05 : p.life > 0);
+  }
+  function drawParts() {
+    for (const p of anim.parts) {
+      if (p.pkg) { ctx.save(); ctx.fillStyle = '#cf9248'; ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = 2; const s = Math.max(10, transform.scale * 0.18); ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); ctx.strokeRect(p.x - s / 2, p.y - s / 2, s, s); ctx.beginPath(); ctx.moveTo(p.x - s / 2, p.y); ctx.lineTo(p.x + s / 2, p.y); ctx.moveTo(p.x, p.y - s / 2); ctx.lineTo(p.x, p.y + s / 2); ctx.stroke(); ctx.restore(); }
+      else { ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
+    }
+  }
+  function drawChevrons(pts) {
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = Math.max(2, transform.scale * 0.035); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const step = Math.max(28, transform.scale * 0.5), size = Math.max(5, transform.scale * 0.1);
+    let acc = (anim.t * 0.05) % step;
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1], b = pts[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue;
+      const ux = dx / L, uy = dy / L, px = -uy, py = ux;
+      for (let d = step - acc; d < L; d += step) { const cx = a.x + ux * d, cy = a.y + uy * d; ctx.beginPath(); ctx.moveTo(cx - ux * size + px * size, cy - uy * size + py * size); ctx.lineTo(cx, cy); ctx.lineTo(cx - ux * size - px * size, cy - uy * size - py * size); ctx.stroke(); }
+      acc = (acc + L) % step;
+    }
+    ctx.restore();
+  }
+  function loop(ts) { const dt = Math.min(0.05, (ts - lastT) / 1000) || 0.016; lastT = ts; anim.t = ts; updateParts(dt); render(); requestAnimationFrame(loop); }
+
   const DROP_COLORS = ['#3b82f6', '#a855f7', '#ec4899'];
   function render() {
     if (!baseLayer) return;
@@ -292,11 +371,14 @@
     // driveways from the road to each building
     driveway(state.pickup, state.pickupParcel, '#f59e0b');
     state.drops.forEach((d, i) => driveway(d.node, d.parcel, DROP_COLORS[i % 3]));
-    // traced route (glow + line)
+    // traced route: glow + line + marching ants + chevrons
     if (state.path.length > 1) {
       const pts = state.path.map(toScreen); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
-      ctx.strokeStyle = 'rgba(47,111,237,.25)'; ctx.lineWidth = Math.max(13, transform.scale * 0.22); strokePts(pts);
-      ctx.strokeStyle = '#2f6fed'; ctx.lineWidth = Math.max(6, transform.scale * 0.1); strokePts(pts);
+      ctx.strokeStyle = 'rgba(47,111,237,.22)'; ctx.lineWidth = Math.max(14, transform.scale * 0.24); strokePts(pts);
+      ctx.strokeStyle = '#2f6fed'; ctx.lineWidth = Math.max(7, transform.scale * 0.11); strokePts(pts);
+      ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = Math.max(2, transform.scale * 0.03);
+      ctx.setLineDash([transform.scale * 0.1, transform.scale * 0.16]); ctx.lineDashOffset = -(anim.t * 0.05) % 100000; strokePts(pts); ctx.setLineDash([]); ctx.lineDashOffset = 0;
+      drawChevrons(pts);
     }
     // road dots = where to drive to
     stopMarker(state.pickup, '#f59e0b', false);
@@ -311,8 +393,15 @@
       const p = toScreen(tail); let hd = 0; if (prev) { const q = toScreen(prev); hd = Math.atan2(p.y - q.y, p.x - q.x); }
       drawTruck(p, hd);
     }
-    document.getElementById('youDist').textContent = pathLength().toFixed(1) + ' mi';
+    // vignette + particles (confetti / package / star-burst)
+    const vg = ctx.createRadialGradient(canvas.width / 2, canvas.height * 0.52, Math.min(canvas.width, canvas.height) * 0.32, canvas.width / 2, canvas.height * 0.52, Math.max(canvas.width, canvas.height) * 0.75);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.16)'); ctx.fillStyle = vg; ctx.fillRect(0, 0, canvas.width, canvas.height);
+    drawParts();
+    // HUD numbers (distance counts up)
+    const target = pathLength(); anim.dist += (target - anim.dist) * 0.25; if (Math.abs(target - anim.dist) < 0.05) anim.dist = target;
+    document.getElementById('youDist').textContent = anim.dist.toFixed(1) + ' mi';
     document.getElementById('bestDist').textContent = state.optimal.toFixed(1) + ' mi';
+    document.getElementById('deliveredN').textContent = state.drops.filter(d => d.done).length + '/' + state.drops.length;
   }
 
   // ── Pointer interaction ──
@@ -321,10 +410,11 @@
 
   function onDown(e) {
     if (state.finished) return;
+    ensureAudio();
     const { x, y } = evtPos(e);
     if (state.path.length === 0) {
       const pp = toScreen(state.pickup), pb = parcelCenter(state.pickupParcel);
-      if (Math.hypot(pp.x - x, pp.y - y) <= R || Math.hypot(pb.x - x, pb.y - y) <= R) { state.path = [state.pickup]; state.drawing = true; markDeliveries(); render(); }
+      if (Math.hypot(pp.x - x, pp.y - y) <= R || Math.hypot(pb.x - x, pb.y - y) <= R) { state.path = [state.pickup]; state.drawing = true; sfxStart(); markDeliveries(); render(); }
       else setHint('Start at the <b>🍔 pickup</b>!');
     } else {
       const tp = toScreen(state.path[state.path.length - 1]);
@@ -364,10 +454,11 @@
       '<button class="btn primary" id="againBtn">New Map ▸</button>';
     document.getElementById('overlay').classList.remove('hidden');
     document.getElementById('againBtn').addEventListener('click', newMap);
+    sfxWin(); spawnStar();
   }
 
-  function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
-  function newMap() { genMap(); buildBase(); document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>📦 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
+  function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
+  function newMap() { genMap(); buildBase(); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
 
   function relayout() { if (!sizeCanvas()) { setTimeout(relayout, 50); return; } transform = computeFit(canvas.width, canvas.height); buildBase(); render(); }
 
@@ -382,6 +473,7 @@
     window.addEventListener('resize', relayout);
     document.getElementById('newBtn').addEventListener('click', newMap);
     document.getElementById('resetBtn').addEventListener('click', reset);
+    lastT = 0; requestAnimationFrame(loop);
     // test hook (used for headless verification)
     window.MQ = {
       state: () => state,
