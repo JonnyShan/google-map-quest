@@ -9,44 +9,49 @@
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; color: #fff; font-family: 'Inter', system-ui, sans-serif; overflow: hidden; -webkit-user-select: none; user-select: none; touch-action: none;
-    background: radial-gradient(120% 90% at 50% 0%, #2a3550 0%, #161d2e 55%, #0c111c 100%); }
+    background: radial-gradient(120% 90% at 50% 0%, #2a3550 0%, #161d2e 55%, #0c111c 100%); transition: background .5s; }
+  body.night { background: radial-gradient(120% 90% at 50% 0%, #11203f 0%, #0a1124 55%, #05080f 100%); }
   #app { position: relative; width: 100vw; height: 100vh; }
   canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
 
-  #topbar { position: absolute; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; gap: 16px; padding: 0 16px; z-index: 5;
-    background: linear-gradient(180deg, rgba(8,11,18,.92), rgba(8,11,18,.55)); border-bottom: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(8px); }
-  .logo { font-family: 'Russo One', sans-serif; font-size: 20px; letter-spacing: .5px; }
+  #topbar { position: absolute; top: 0; left: 0; right: 0; height: 60px; display: flex; align-items: center; gap: 14px; padding: 0 14px; z-index: 5;
+    background: linear-gradient(180deg, rgba(8,11,18,.92), rgba(8,11,18,.5)); border-bottom: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(8px); }
+  .logo { font-family: 'Russo One', sans-serif; font-size: 19px; letter-spacing: .5px; }
   .logo b { color: #ffd23f; }
   .spacer { flex: 1; }
-  .stat { text-align: center; min-width: 86px; }
+  .stat { text-align: center; min-width: 80px; }
   .stat .l { font-size: 10px; letter-spacing: 1.5px; color: #9aa4b2; font-weight: 700; }
-  .stat .v { font-family: 'Russo One', sans-serif; font-size: 20px; }
+  .stat .v { font-family: 'Russo One', sans-serif; font-size: 19px; }
   .stat .v.you { color: #6cb0ff; } .stat .v.best { color: #34d36b; }
-  .btn { padding: 9px 16px; border: 0; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 13px; letter-spacing: .5px; }
+  .btn { padding: 9px 14px; border: 0; border-radius: 10px; font-weight: 800; cursor: pointer; font-size: 13px; letter-spacing: .5px; }
   .btn.ghost { background: rgba(255,255,255,.12); color: #fff; }
   .btn.primary { background: linear-gradient(180deg,#2ee06a,#1eb455); color: #06210f; }
+  .icon-btn { width: 38px; height: 38px; border: 0; border-radius: 10px; background: rgba(255,255,255,.12); color: #fff; font-size: 17px; cursor: pointer; }
 
-  #hint { position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); background: rgba(8,11,18,.86); border: 1px solid rgba(255,255,255,.12);
-    padding: 10px 18px; border-radius: 99px; font-weight: 700; font-size: 14px; z-index: 5; backdrop-filter: blur(6px); white-space: nowrap; }
+  #hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); background: rgba(8,11,18,.86); border: 1px solid rgba(255,255,255,.12);
+    padding: 10px 18px; border-radius: 99px; font-weight: 700; font-size: 13.5px; z-index: 5; backdrop-filter: blur(6px); max-width: 92vw; text-align: center; }
   #hint b { color: #ffd23f; }
+  #undoBtn { position: absolute; left: 16px; bottom: 22px; z-index: 6; }
+  #reviewBtn { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 7; }
+  .hidden { display: none !important; }
 
   #overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(5,8,12,.62); backdrop-filter: blur(4px); z-index: 10; }
-  #overlay.hidden { display: none; }
-  .card { width: min(430px,92vw); background: #141b2b; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 26px; text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,.55); }
-  .card h2 { font-family: 'Russo One', sans-serif; font-size: 28px; margin-bottom: 4px; }
-  .stars { font-size: 34px; letter-spacing: 6px; margin: 6px 0 14px; }
-  .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-  .res-cell { background: rgba(255,255,255,.05); border-radius: 12px; padding: 13px; }
+  .card { width: min(440px,92vw); background: #141b2b; border: 1px solid rgba(255,255,255,.12); border-radius: 20px; padding: 24px; text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,.55); }
+  .card h2 { font-family: 'Russo One', sans-serif; font-size: 26px; margin-bottom: 4px; }
+  .stars { font-size: 32px; letter-spacing: 6px; margin: 6px 0 12px; }
+  .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .res-cell { background: rgba(255,255,255,.05); border-radius: 12px; padding: 12px; }
   .res-cell .rl { font-size: 11px; letter-spacing: 1px; color: #9aa4b2; }
-  .res-cell .rv { font-family: 'Russo One', sans-serif; font-size: 23px; margin-top: 3px; }
+  .res-cell .rv { font-family: 'Russo One', sans-serif; font-size: 22px; margin-top: 3px; }
   .res-cell .rv.you { color: #6cb0ff; } .res-cell .rv.best { color: #34d36b; }
-  .card .msg { color: #c3cad6; margin-bottom: 18px; }
-  .card .btn.primary { width: 100%; padding: 14px; font-family: 'Russo One', sans-serif; font-size: 16px; }
+  .card .msg { color: #c3cad6; margin-bottom: 14px; }
+  .btn-row { display: flex; gap: 10px; }
+  .btn-row .btn { flex: 1; padding: 13px; font-family: 'Russo One', sans-serif; font-size: 15px; }
 
-  @media (max-width: 620px) {
-    .logo { font-size: 15px; } .stat { min-width: 60px; } .stat .v { font-size: 16px; }
-    #topbar { gap: 7px; padding: 0 10px; } .btn { padding: 8px 11px; font-size: 12px; }
-    #hint { font-size: 12px; bottom: 16px; padding: 9px 14px; }
+  @media (max-width: 660px) {
+    .logo { font-size: 14px; } .stat { min-width: 54px; } .stat .v { font-size: 15px; } .stat .l { font-size: 8px; }
+    #topbar { gap: 6px; padding: 0 9px; } .btn { padding: 7px 9px; font-size: 11px; } .icon-btn { width: 32px; height: 32px; }
+    #hint { font-size: 11.5px; bottom: 14px; padding: 8px 13px; }
   }
 </style>
 </head>
@@ -59,10 +64,13 @@
     <div class="stat"><div class="l">YOUR DISTANCE</div><div class="v you" id="youDist">0.0 mi</div></div>
     <div class="stat"><div class="l">SHORTEST</div><div class="v best" id="bestDist">0.0 mi</div></div>
     <div class="stat"><div class="l">DELIVERED</div><div class="v" id="deliveredN">0/3</div></div>
+    <button class="icon-btn" id="dnBtn" title="Day / night">🌙</button>
     <button class="btn ghost" id="resetBtn">Reset</button>
     <button class="btn primary" id="newBtn">New Map</button>
   </div>
-  <div id="hint">Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.</div>
+  <div id="hint"></div>
+  <button class="btn ghost hidden" id="undoBtn">↶ Undo</button>
+  <button class="btn ghost hidden" id="reviewBtn">◂ Back to results</button>
   <div id="overlay" class="hidden"><div class="card" id="card"></div></div>
 </div>
 
@@ -70,19 +78,20 @@
 (function () {
   'use strict';
 
-  // ── Grid road graph ──
+  // ── Grid graph ──
   function key(c, r) { return c + ',' + r; }
+  function cr(id) { const p = id.split(','); return [+p[0], +p[1]]; }
+  function ek(a, b) { return a < b ? a + '|' + b : b + '|' + a; }
   function makeGrid(cols, rows) {
     const nodes = new Map(), adj = new Map();
-    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const id = key(c, r); nodes.set(id, { id, c, r }); adj.set(id, []); }
+    for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { const id = key(c, r); nodes.set(id, { id }); adj.set(id, []); }
     const link = (a, b) => { adj.get(a).push(b); adj.get(b).push(a); };
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) { if (c + 1 < cols) link(key(c, r), key(c + 1, r)); if (r + 1 < rows) link(key(c, r), key(c, r + 1)); }
     return { nodes, adj, cols, rows };
   }
-  function cr(id) { const p = id.split(','); return [+p[0], +p[1]]; }
   function nodeDist(a, b) { const A = cr(a), B = cr(b); return Math.hypot(A[0] - B[0], A[1] - B[1]); }
-  function dijkstra(g, start, goal) {
-    const dist = new Map(), vis = new Set();
+  function dijkstra(g, start, goal, closed) {
+    const dist = new Map(), prev = new Map(), vis = new Set();
     for (const id of g.nodes.keys()) dist.set(id, Infinity);
     dist.set(start, 0);
     while (true) {
@@ -90,11 +99,13 @@
       for (const [id, d] of dist) if (!vis.has(id) && d < best) { best = d; u = id; }
       if (u === null || u === goal) break;
       vis.add(u);
-      for (const v of g.adj.get(u)) { const nd = dist.get(u) + nodeDist(u, v); if (nd < dist.get(v)) dist.set(v, nd); }
+      for (const v of g.adj.get(u)) { if (closed && closed.has(ek(u, v))) continue; const nd = dist.get(u) + nodeDist(u, v); if (nd < dist.get(v)) { dist.set(v, nd); prev.set(v, u); } }
     }
-    return dist.get(goal);
+    const d = dist.get(goal);
+    if (!isFinite(d)) return { dist: Infinity, path: [] };
+    const path = []; let cur = goal; while (cur !== undefined) { path.unshift(cur); cur = prev.get(cur); }
+    return { dist: d, path };
   }
-  function perms(arr) { if (arr.length <= 1) return [arr]; const out = []; arr.forEach((v, i) => { const rest = arr.slice(0, i).concat(arr.slice(i + 1)); for (const p of perms(rest)) out.push([v, ...p]); }); return out; }
 
   // ── State ──
   const canvas = document.getElementById('map');
@@ -103,16 +114,16 @@
   const anim = { t: 0, dist: 0, parts: [] };
   let actx = null, lastT = 0;
   const COLS = 7, ROWS = 6;
-  const DROP_COLORS = ['#3b82f6', '#a855f7', '#ec4899'];
-  const ROOF = ['#e8694a', '#5b8fb0', '#6ea65a', '#caa24a']; // decorative roof tints
+  const REST = [{ color: '#e8523a', icon: '🍕' }, { color: '#14b8a6', icon: '🍣' }];
 
   // ── Isometric projection ──
   let TW, TH, ZS, OFFX, OFFY;
+  const ISO_R = 0.6, ISO_H = 0.6;
   function iso(wx, wy, wz) { return { x: OFFX + (wx - wy) * TW, y: OFFY + (wx + wy) * TH - (wz || 0) * ZS }; }
   function toScreen(id) { const p = cr(id); return iso(p[0], p[1], 0); }
   function parcelCenter(parcel) { return iso(parcel[0] + 0.5, parcel[1] + 0.5, 0); }
+  function screenToWorld(sx, sy) { const a = (sx - OFFX) / TW, b = (sy - OFFY) / TH; return { x: (a + b) / 2, y: (b - a) / 2 }; }
   function sizeCanvas() { const w = canvas.clientWidth || innerWidth || 1000, h = canvas.clientHeight || innerHeight || 700; canvas.width = w; canvas.height = h; return w > 0 && h > 0; }
-  const ISO_R = 0.6, ISO_H = 0.6; // tile flatten ratio + height scale (lower = flatter / more 2D)
   function computeFit(w, h) {
     const top = 70, pad = Math.min(w, h) * 0.05, span = (COLS - 1) + (ROWS - 1);
     TW = Math.min((w - pad * 2) / span, (h - top - pad * 2) / (span * ISO_R + ISO_H * 1.3));
@@ -122,8 +133,7 @@
     const groundH = span * TH, head = ZS * 1.3;
     OFFY = top + head + ((h - top - groundH - head) / 2);
   }
-  function nearestNode(sx, sy) { let best = null, bd = Infinity; for (const id of G.nodes.keys()) { const p = toScreen(id); const d = (p.x - sx) ** 2 + (p.y - sy) ** 2; if (d < bd) { bd = d; best = id; } } return { node: best, dist: Math.sqrt(bd) }; }
-  function screenToWorld(sx, sy) { const a = (sx - OFFX) / TW, b = (sy - OFFY) / TH; return { x: (a + b) / 2, y: (b - a) / 2 }; }
+  function isClosed(a, b) { return state.closed && state.closed.has(ek(a, b)); }
 
   // ── Map generation ──
   function rand(n) { return Math.floor(Math.random() * n); }
@@ -133,36 +143,89 @@
     for (const cand of cands) { const k = cand.join(','); if (!taken.has(k)) { taken.add(k); return cand; } }
     return cands[0] || [Math.min(c, COLS - 2), Math.min(r, ROWS - 2)];
   }
+  function connected(closed, from) { const seen = new Set([from]), q = [from]; while (q.length) { const u = q.pop(); for (const v of G.adj.get(u)) { if (closed.has(ek(u, v))) continue; if (!seen.has(v)) { seen.add(v); q.push(v); } } } return seen.size === G.nodes.size; }
+  function genClosures(garage) {
+    const allEdges = []; for (const [id, list] of G.adj) for (const v of list) if (id < v) allEdges.push([id, v]);
+    const n = Math.round(allEdges.length * 0.13);
+    for (let attempt = 0; attempt < 80; attempt++) {
+      const sh = allEdges.slice(); for (let i = sh.length - 1; i > 0; i--) { const j = rand(i + 1); const t = sh[i]; sh[i] = sh[j]; sh[j] = t; }
+      const closed = new Set(); for (let i = 0; i < n; i++) closed.add(ek(sh[i][0], sh[i][1]));
+      if (connected(closed, garage)) return closed;
+    }
+    return new Set();
+  }
   function genMap() {
     G = makeGrid(COLS, ROWS);
     const ids = [...G.nodes.keys()];
-    function pick(exclude, minSep) { for (let t = 0; t < 400; t++) { const id = ids[rand(ids.length)]; if (exclude.some(e => nodeDist(e, id) < minSep)) continue; return id; } return ids[rand(ids.length)]; }
-    const pickup = pick([], 0);
-    const d1 = pick([pickup], 3), d2 = pick([pickup, d1], 3), d3 = pick([pickup, d1, d2], 3);
-    const dropNodes = [d1, d2, d3];
-    const routeDist = (o) => { let d = dijkstra(G, pickup, o[0]); for (let i = 1; i < o.length; i++) d += dijkstra(G, o[i - 1], o[i]); return d; };
-    const optimal = Math.min(...perms(dropNodes).map(routeDist));
+    const pick = (ex, sep) => { for (let t = 0; t < 500; t++) { const id = ids[rand(ids.length)]; if (ex.some(e => nodeDist(e, id) < sep)) continue; return id; } return ids[rand(ids.length)]; };
+    const garage = pick([], 0);
+    const r0 = pick([garage], 2), r1 = pick([garage, r0], 3);
+    const restaurants = [{ id: 0, node: r0, color: REST[0].color, icon: REST[0].icon }, { id: 1, node: r1, color: REST[1].color, icon: REST[1].icon }];
+    const used = [garage, r0, r1];
+    const houses = [];
+    for (let i = 0; i < 3; i++) { const hn = pick(used, 2); used.push(hn); const restId = i < 2 ? i : rand(2); houses.push({ node: hn, restId, color: REST[restId].color, icon: REST[restId].icon, done: false }); }
+    const closed = new Set(); // hard closures disabled — they break the freehand road-trace (greedy stepping can't detour)
+    state = { garage, restaurants, houses, closed, path: [], drawing: false, finished: false, reviewing: false, night: state ? state.night : false, cars: [] };
     const taken = new Set();
-    const pickupParcel = parcelFor(pickup, taken);
-    state = { pickup, pickupParcel, drops: dropNodes.map(n => ({ node: n, done: false, parcel: parcelFor(n, taken) })), path: [], drawing: false, finished: false, optimal };
+    state.garageParcel = parcelFor(garage, taken);
+    restaurants.forEach(r => r.parcel = parcelFor(r.node, taken));
+    houses.forEach(h => h.parcel = parcelFor(h.node, taken));
+    const bo = bestRoute(); state.optimal = bo.dist; state.bestOrder = bo.order;
+    initCars();
+  }
+  function bestRoute() {
+    const items = state.restaurants.map(r => ({ node: r.node, rest: r.id })).concat(state.houses.map(h => ({ node: h.node, need: h.restId })));
+    const memo = new Map(); const D = (a, b) => { const k = ek(a, b); if (memo.has(k)) return memo.get(k); const d = dijkstra(G, a, b, state.closed).dist; memo.set(k, d); return d; };
+    let best = Infinity, bestOrder = null; const used = new Array(items.length).fill(false), placed = new Set(), order = [];
+    function dfs(prev, acc) {
+      if (acc >= best) return;
+      if (order.length === items.length) { best = acc; bestOrder = order.slice(); return; }
+      for (let i = 0; i < items.length; i++) {
+        if (used[i]) continue; const it = items[i]; if (it.need !== undefined && !placed.has(it.need)) continue;
+        used[i] = true; if (it.rest !== undefined) placed.add(it.rest); order.push(it.node);
+        dfs(it.node, acc + D(prev, it.node));
+        order.pop(); if (it.rest !== undefined) placed.delete(it.rest); used[i] = false;
+      }
+    }
+    dfs(state.garage, 0);
+    return { dist: best, order: bestOrder || [] };
   }
 
   // ── Route logic ──
   function pathLength() { let d = 0; for (let i = 1; i < state.path.length; i++) d += nodeDist(state.path[i - 1], state.path[i]); return d; }
-  function markDeliveries() { for (const drop of state.drops) if (!drop.done && state.path.includes(drop.node)) { drop.done = true; onDelivered(drop); } }
-  function onDelivered(drop) { const from = toScreen(state.path[state.path.length - 1] || drop.node), to = parcelCenter(drop.parcel); spawnPackage(from, { x: to.x, y: to.y - ZS * 0.4 }); spawnConfetti(to.x, to.y - ZS * 0.4, '#34d36b'); sfxDing(); }
+  function computeDone(fire) {
+    const picked = new Set();
+    for (const node of state.path) {
+      for (const r of state.restaurants) if (r.node === node) picked.add(r.id);
+      for (const h of state.houses) if (!h.done && h.node === node && picked.has(h.restId)) { h.done = true; if (fire) onDelivered(h); }
+    }
+  }
+  function recomputeDone() { state.houses.forEach(h => h.done = false); computeDone(false); }
+  function onDelivered(h) { const to = parcelCenter(h.parcel); spawnPackage({ x: to.x, y: to.y - ZS * 0.3 }, { x: to.x, y: to.y - ZS * 0.5 }); spawnConfetti(to.x, to.y - ZS * 0.4, '#34d36b'); sfxDing(); if (navigator.vibrate) navigator.vibrate(28); }
   function stepToward(sx, sy) {
-    const w = screenToWorld(sx, sy); // step on the grid in world space (works in any projection)
-    let moved = false, guard = 0;
+    const w = screenToWorld(sx, sy); let moved = false, guard = 0;
     while (guard++ < 400) {
       const tail = state.path[state.path.length - 1], t = cr(tail), tailD = Math.hypot(t[0] - w.x, t[1] - w.y);
       let bestN = null, bestD = tailD - 0.001;
-      for (const nb of G.adj.get(tail)) { const p = cr(nb), d = Math.hypot(p[0] - w.x, p[1] - w.y); if (d < bestD) { bestD = d; bestN = nb; } }
+      for (const nb of G.adj.get(tail)) { if (isClosed(tail, nb)) continue; const p = cr(nb), d = Math.hypot(p[0] - w.x, p[1] - w.y); if (d < bestD) { bestD = d; bestN = nb; } }
       if (!bestN) break;
       state.path.push(bestN); moved = true;
     }
-    if (moved) markDeliveries();
+    if (moved) computeDone(true);
     return moved;
+  }
+
+  // ── Ambient cars ──
+  function initCars() {
+    state.cars = []; const edges = [];
+    for (const [id, list] of G.adj) for (const v of list) if (id < v && !state.closed.has(ek(id, v))) edges.push([id, v]);
+    for (let i = 0; i < 4 && edges.length; i++) { const e = edges[rand(edges.length)]; state.cars.push({ a: e[0], b: e[1], t: Math.random(), sp: 0.35 + Math.random() * 0.4, col: ['#e0705f', '#5aa9d6', '#e6c14e', '#9b6fd6'][i % 4] }); }
+  }
+  function updateCars(dt) {
+    for (const c of state.cars) {
+      c.t += c.sp * dt;
+      if (c.t >= 1) { c.t = 0; c.a = c.b; const nb = G.adj.get(c.b).filter(v => !isClosed(c.b, v)); c.b = nb.length ? nb[rand(nb.length)] : c.a; }
+    }
   }
 
   // ── Audio + particles ──
@@ -176,74 +239,62 @@
   function spawnPackage(from, to) { anim.parts.push({ pkg: true, x: from.x, y: from.y, fx: from.x, fy: from.y, tx: to.x, ty: to.y, p: 0 }); }
   function updateParts(dt) {
     for (const p of anim.parts) {
-      if (p.pkg) { p.p += dt * 2.4; const e = Math.min(1, p.p); p.x = p.fx + (p.tx - p.fx) * e; p.y = p.fy + (p.ty - p.fy) * e - Math.sin(e * Math.PI) * 36; }
+      if (p.pkg) { p.p += dt * 2.4; const e = Math.min(1, p.p); p.x = p.fx + (p.tx - p.fx) * e; p.y = p.fy + (p.ty - p.fy) * e - Math.sin(e * Math.PI) * 30; }
       else { p.vy += 0.16; p.x += p.vx; p.y += p.vy; p.life -= dt * 1.2; }
     }
     anim.parts = anim.parts.filter(p => p.pkg ? p.p < 1.05 : p.life > 0);
   }
   function drawParts() {
     for (const p of anim.parts) {
-      if (p.pkg) { ctx.save(); ctx.fillStyle = '#cf9248'; ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = 2; const s = Math.max(10, ZS * 0.16); ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); ctx.strokeRect(p.x - s / 2, p.y - s / 2, s, s); ctx.beginPath(); ctx.moveTo(p.x - s / 2, p.y); ctx.lineTo(p.x + s / 2, p.y); ctx.moveTo(p.x, p.y - s / 2); ctx.lineTo(p.x, p.y + s / 2); ctx.stroke(); ctx.restore(); }
+      if (p.pkg) { ctx.save(); ctx.fillStyle = '#cf9248'; ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = 2; const s = Math.max(10, ZS * 0.16); ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s); ctx.strokeRect(p.x - s / 2, p.y - s / 2, s, s); ctx.restore(); }
       else { ctx.globalAlpha = Math.max(0, Math.min(1, p.life)); ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.globalAlpha = 1; }
     }
   }
 
   // ── Iso draw helpers ──
-  function shade(hex, f) { // lighten(<1 darken) a hex color
-    const n = parseInt(hex.slice(1), 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255;
-    r = Math.max(0, Math.min(255, r * f)); g = Math.max(0, Math.min(255, g * f)); b = Math.max(0, Math.min(255, b * f));
-    return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')';
-  }
-  function poly(pts, fill, stroke) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.stroke(); } }
-  function shadowDiamond(wx, wy, fw, fh) {
-    const off = 0.09;
-    const c = [iso(wx - fw + off, wy - fh + off), iso(wx + fw + off, wy - fh + off), iso(wx + fw + off, wy + fh + off), iso(wx - fw + off, wy + fh + off)];
-    ctx.save(); ctx.globalAlpha = 0.15; poly(c, '#0b1020'); ctx.restore();
-  }
-  // Extruded box centered at (wx,wy) ground, half-footprint hw×hh, height h. Returns top-center screen for labels.
+  function shade(hex, f) { const n = parseInt(hex.slice(1), 16); let r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; r = Math.min(255, r * f); g = Math.min(255, g * f); b = Math.min(255, b * f); return 'rgb(' + (r | 0) + ',' + (g | 0) + ',' + (b | 0) + ')'; }
+  function poly(pts, fill, stroke, lw) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.closePath(); if (fill) { ctx.fillStyle = fill; ctx.fill(); } if (stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); } }
+  function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+  function shadowDiamond(wx, wy, fw, fh) { const o = 0.09; const c = [iso(wx - fw + o, wy - fh + o), iso(wx + fw + o, wy - fh + o), iso(wx + fw + o, wy + fh + o), iso(wx - fw + o, wy + fh + o)]; ctx.save(); ctx.globalAlpha = 0.15; poly(c, '#0b1020'); ctx.restore(); }
   function box(wx, wy, hw, hh, h, topCol, opts) {
     opts = opts || {};
-    const bTL = iso(wx - hw, wy - hh, 0), bTR = iso(wx + hw, wy - hh, 0), bBR = iso(wx + hw, wy + hh, 0), bBL = iso(wx - hw, wy + hh, 0);
+    const bTR = iso(wx + hw, wy - hh, 0), bBR = iso(wx + hw, wy + hh, 0), bBL = iso(wx - hw, wy + hh, 0);
     const tTL = iso(wx - hw, wy - hh, h), tTR = iso(wx + hw, wy - hh, h), tBR = iso(wx + hw, wy + hh, h), tBL = iso(wx - hw, wy + hh, h);
-    poly([bTR, bBR, tBR, tTR], shade(topCol, 0.74)); // right wall (max wx)
-    poly([bBL, bBR, tBR, tBL], shade(topCol, 0.6));  // left wall (max wy)
-    poly([tTL, tTR, tBR, tBL], shade(topCol, 1.06)); // top
+    poly([bTR, bBR, tBR, tTR], shade(topCol, 0.74));
+    poly([bBL, bBR, tBR, tBL], shade(topCol, 0.6));
+    poly([tTL, tTR, tBR, tBL], shade(topCol, 1.06));
     if (opts.windows) {
-      // window grid on the two visible walls
-      const wins = (a, b, top, bot, cols, rows) => {
-        for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
-          const u0 = (i + 0.22) / cols, u1 = (i + 0.78) / cols, v0 = (j + 0.22) / rows, v1 = (j + 0.78) / rows;
-          const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
-          const lerp2 = (uu, vv) => { const top2 = L(a.t, b.t, uu), bot2 = L(a.b, b.b, uu); return L(top2, bot2, vv); };
-          poly([lerp2(u0, v0), lerp2(u1, v0), lerp2(u1, v1), lerp2(u0, v1)], opts.win || 'rgba(180,210,235,.85)');
-        }
-      };
-      wins({ t: tTR, b: bTR }, { t: tBR, b: bBR }, 0, 0, 2, 3); // right wall
-      wins({ t: tBL, b: bBL }, { t: tBR, b: bBR }, 0, 0, 2, 3); // left wall
+      const lerp = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+      const wins = (a0, a1, b0, b1) => { for (let i = 0; i < 2; i++) for (let j = 0; j < 3; j++) { const u0 = (i + .24) / 2, u1 = (i + .76) / 2, v0 = (j + .24) / 3, v1 = (j + .76) / 3; const f = (uu, vv) => lerp(lerp(a0, a1, uu), lerp(b0, b1, uu), vv); poly([f(u0, v0), f(u1, v0), f(u1, v1), f(u0, v1)], opts.win); } };
+      wins(tTR, tBR, bTR, bBR); wins(tBL, tBR, bBL, bBR);
     }
     return { top: iso(wx, wy, h), tTL, tTR, tBR, tBL };
   }
-  function drawOffice(wx, wy, seed) {
-    const h = 0.45 + (seed % 4) * 0.28;
-    const col = ['#cdd6e0', '#c2ccd8', '#d7dde6', '#b9c6d4'][seed % 4];
-    shadowDiamond(wx, wy, 0.34, 0.34);
-    box(wx, wy, 0.32, 0.32, h, col, { windows: true, win: 'rgba(120,160,200,.7)' });
+  function wallRect(wx, wy, hw, hh, h, face, u0, u1, v0, v1, fill) {
+    const lerp = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
+    let a, b, at, bt;
+    if (face === 'right') { a = iso(wx + hw, wy - hh, 0); b = iso(wx + hw, wy + hh, 0); at = iso(wx + hw, wy - hh, h); bt = iso(wx + hw, wy + hh, h); }
+    else { a = iso(wx - hw, wy + hh, 0); b = iso(wx + hw, wy + hh, 0); at = iso(wx - hw, wy + hh, h); bt = iso(wx + hw, wy + hh, h); }
+    const f = (uu, vv) => lerp(lerp(at, bt, uu), lerp(a, b, uu), vv);
+    poly([f(u0, v0), f(u1, v0), f(u1, v1), f(u0, v1)], fill);
   }
   function drawTree(wx, wy, scale) {
-    scale = scale || 1;
-    shadowDiamond(wx, wy, 0.13 * scale, 0.13 * scale);
-    const base = iso(wx, wy, 0), trunkH = 0.12 * scale, topH = 0.42 * scale;
-    const t0 = iso(wx, wy, trunkH);
-    ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = Math.max(3, ZS * 0.05 * scale); ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(base.x, base.y); ctx.lineTo(t0.x, t0.y); ctx.stroke();
-    const c = iso(wx, wy, topH), r = ZS * 0.2 * scale;
+    scale = scale || 1; shadowDiamond(wx, wy, 0.13 * scale, 0.13 * scale);
+    const base = iso(wx, wy, 0), t0 = iso(wx, wy, 0.12 * scale), c = iso(wx, wy, 0.4 * scale), r = ZS * 0.2 * scale;
+    ctx.strokeStyle = '#7c5a3a'; ctx.lineWidth = Math.max(3, ZS * 0.05 * scale); ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(base.x, base.y); ctx.lineTo(t0.x, t0.y); ctx.stroke();
     ctx.fillStyle = '#3f6f2f'; ctx.beginPath(); ctx.arc(c.x, c.y, r, 0, 7); ctx.fill();
     ctx.fillStyle = '#5a9440'; ctx.beginPath(); ctx.arc(c.x - r * 0.3, c.y - r * 0.3, r * 0.7, 0, 7); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.arc(c.x - r * 0.4, c.y - r * 0.45, r * 0.35, 0, 7); ctx.fill();
   }
-  function drawCar(wx, wy, col) {
-    shadowDiamond(wx, wy, 0.18, 0.1);
-    box(wx, wy, 0.16, 0.09, 0.12, col);
+  function drawCar(wx, wy, col, dir) {
+    const along = !dir || Math.abs(dir[0]) >= Math.abs(dir[1]);
+    shadowDiamond(wx, wy, along ? 0.17 : 0.1, along ? 0.1 : 0.17);
+    box(wx, wy, along ? 0.16 : 0.09, along ? 0.09 : 0.16, 0.12, col);
+  }
+  function drawOffice(wx, wy, seed) {
+    const h = 0.36 + (seed % 4) * 0.16, col = ['#cdd6e0', '#c2ccd8', '#d7dde6', '#b9c6d4'][seed % 4];
+    shadowDiamond(wx, wy, 0.34, 0.34);
+    box(wx, wy, 0.32, 0.32, h, col, { windows: true, win: state.night ? 'rgba(255,214,120,.85)' : 'rgba(120,160,200,.7)' });
   }
   function labelBubble(cx, cy, text, color) {
     ctx.save(); const fs = Math.max(13, TW * 0.42); ctx.font = '800 ' + fs + 'px Inter, system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -253,171 +304,166 @@
     ctx.beginPath(); ctx.moveTo(cx - h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx + h * 0.26, cy + h / 2 - 1); ctx.lineTo(cx, cy + h / 2 + h * 0.45); ctx.closePath(); ctx.fill();
     ctx.shadowColor = 'transparent'; ctx.fillStyle = '#fff'; ctx.fillText(text, cx, cy); ctx.restore();
   }
-  function roundRect(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
-
-  function drawHouse(wx, wy, color, label, done) {
-    const wall = '#f4efe4', wallH = 0.34, hw = 0.3, hh = 0.3, roofH = 0.3, rc = done ? '#2ecc71' : color;
+  function drawHouse(wx, wy, color, label, icon, done) {
+    const wall = '#f4efe4', wallH = 0.32, hw = 0.3, hh = 0.3, roofH = 0.28, rc = done ? '#2ecc71' : color;
     shadowDiamond(wx, wy, hw + 0.04, hh + 0.04);
     box(wx, wy, hw, hh, wallH, wall);
-    // door + window on right wall (max wx)
-    const dr = (u0, u1, v0, v1, fill) => { const a = iso(wx + hw, wy - hh, 0), b = iso(wx + hw, wy + hh, 0), at = iso(wx + hw, wy - hh, wallH), bt = iso(wx + hw, wy + hh, wallH); const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t }); const f = (uu, vv) => { const tp = L(at, bt, uu), bp = L(a, b, uu); return L(tp, bp, vv); }; poly([f(u0, v0), f(u1, v0), f(u1, v1), f(u0, v1)], fill); };
-    dr(0.32, 0.62, 0.05, 0.85, rc);            // door
-    dr(0.66, 0.9, 0.12, 0.45, '#bcd6ea');      // window
-    // hip roof: apex above center
+    wallRect(wx, wy, hw, hh, wallH, 'right', 0.32, 0.62, 0.05, 0.85, rc);
+    wallRect(wx, wy, hw, hh, wallH, 'right', 0.66, 0.9, 0.12, 0.45, state.night ? '#ffd66b' : '#bcd6ea');
     const apex = iso(wx, wy, wallH + roofH);
     const tTL = iso(wx - hw, wy - hh, wallH), tTR = iso(wx + hw, wy - hh, wallH), tBR = iso(wx + hw, wy + hh, wallH), tBL = iso(wx - hw, wy + hh, wallH);
-    poly([tTR, tBR, apex], shade(rc, 0.82));   // right slope
-    poly([tBL, tBR, apex], shade(rc, 0.68));   // left slope (front)
-    poly([tTL, tTR, apex], shade(rc, 1.04));   // back-right (lit)
-    poly([tTL, tBL, apex], shade(rc, 0.9));
-    labelBubble(apex.x, apex.y - ZS * 0.32, done ? '✓' : label, rc);
+    poly([tTR, tBR, apex], shade(rc, 0.82)); poly([tBL, tBR, apex], shade(rc, 0.66)); poly([tTL, tTR, apex], shade(rc, 1.04)); poly([tTL, tBL, apex], shade(rc, 0.9));
+    labelBubble(apex.x, apex.y - ZS * 0.3, done ? '✓' : (label + ' ' + icon), rc);
   }
-  function drawShop(wx, wy) {
+  function drawShop(wx, wy, color, icon) {
     const wall = '#f3ece0', wallH = 0.36, hw = 0.32, hh = 0.32;
     shadowDiamond(wx, wy, hw + 0.05, hh + 0.05);
     box(wx, wy, hw, hh, wallH, wall);
-    // red awning band across the two front walls (top portion)
-    const band = (corner) => { // corner: 'right' or 'left'
-      const a = corner === 'right' ? iso(wx + hw, wy - hh, 0) : iso(wx - hw, wy + hh, 0);
-      const b = iso(wx + hw, wy + hh, 0);
-      const at = corner === 'right' ? iso(wx + hw, wy - hh, wallH) : iso(wx - hw, wy + hh, wallH);
-      const bt = iso(wx + hw, wy + hh, wallH);
-      const L = (p, q, t) => ({ x: p.x + (q.x - p.x) * t, y: p.y + (q.y - p.y) * t });
-      const f = (uu, vv) => { const tp = L(at, bt, uu), bp = L(a, b, uu); return L(tp, bp, vv); };
-      for (let i = 0; i < 4; i++) poly([f(i / 4, 0.06), f((i + 1) / 4, 0.06), f((i + 1) / 4, 0.34), f(i / 4, 0.34)], i % 2 ? '#e8523a' : '#fbe9e2');
-      f && poly([f(0.34, 0.5), f(0.62, 0.5), f(0.62, 0.95), f(0.34, 0.95)], '#7c5a3a'); // door
-    };
-    band('right'); band('left');
+    for (let i = 0; i < 4; i++) { wallRect(wx, wy, hw, hh, wallH, 'right', i / 4, (i + 1) / 4, 0.06, 0.32, i % 2 ? shade(color, 1) : '#fbe9e2'); wallRect(wx, wy, hw, hh, wallH, 'left', i / 4, (i + 1) / 4, 0.06, 0.32, i % 2 ? shade(color, 1) : '#fbe9e2'); }
+    wallRect(wx, wy, hw, hh, wallH, 'right', 0.36, 0.64, 0.45, 0.95, '#7c5a3a');
     const top = iso(wx, wy, wallH);
-    labelBubble(top.x, top.y - ZS * 0.18, '🍔', '#f59e0b');
+    labelBubble(top.x, top.y - ZS * 0.18, icon, color);
+  }
+  function drawDepot(wx, wy) {
+    const wall = '#9aa3b0', wallH = 0.34, hw = 0.33, hh = 0.33;
+    shadowDiamond(wx, wy, hw + 0.05, hh + 0.05);
+    box(wx, wy, hw, hh, wallH, wall);
+    wallRect(wx, wy, hw, hh, wallH, 'right', 0.16, 0.84, 0.18, 0.95, '#3a4150');
+    const top = iso(wx, wy, wallH); labelBubble(top.x, top.y - ZS * 0.18, '🚚', '#5b6577');
   }
   function drawVan(wx, wy, dir) {
-    // dir: [dc,dr] world direction along the road (axis-aligned). Long axis follows it.
-    const along = Math.abs(dir[0]) >= Math.abs(dir[1]); // true => along x
-    const hw = along ? 0.26 : 0.13, hh = along ? 0.13 : 0.26, H = 0.26;
+    const along = Math.abs(dir[0]) >= Math.abs(dir[1]), hw = along ? 0.24 : 0.12, hh = along ? 0.12 : 0.24, H = 0.24;
     shadowDiamond(wx, wy, hw + 0.03, hh + 0.03);
     box(wx, wy, hw, hh, H, '#eef2f8');
-    // cab (blue) at leading end
     const lead = [Math.sign(dir[0] || 0), Math.sign(dir[1] || 0)];
-    const cx = wx + lead[0] * (along ? 0.13 : 0), cy = wy + lead[1] * (along ? 0 : 0.13);
-    box(cx, cy, along ? 0.1 : 0.12, along ? 0.12 : 0.1, H * 1.04, '#2f6fed');
-    // headlight glow forward
+    box(wx + lead[0] * (along ? 0.12 : 0), wy + lead[1] * (along ? 0 : 0.12), along ? 0.1 : 0.12, along ? 0.12 : 0.1, H * 1.06, '#2f6fed');
     const hp = iso(wx + lead[0] * (hw + 0.05), wy + lead[1] * (hh + 0.05), H * 0.4);
-    const gr = ctx.createRadialGradient(hp.x, hp.y, 1, hp.x, hp.y, ZS * 0.5); gr.addColorStop(0, 'rgba(255,240,170,.6)'); gr.addColorStop(1, 'rgba(255,240,170,0)');
-    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(hp.x, hp.y, ZS * 0.5, 0, 7); ctx.fill();
+    const rad = ZS * (state.night ? 0.8 : 0.5); const gr = ctx.createRadialGradient(hp.x, hp.y, 1, hp.x, hp.y, rad); gr.addColorStop(0, 'rgba(255,240,170,' + (state.night ? 0.8 : 0.5) + ')'); gr.addColorStop(1, 'rgba(255,240,170,0)');
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(hp.x, hp.y, rad, 0, 7); ctx.fill(); ctx.restore();
   }
 
-  // ── Base layer (ground tiles + roads, baked) ──
-  function blockType(pc, pr, stops) { return stops.has(pc + ',' + pr) ? 'lawn' : ['park', 'office', 'lawn', 'parking', 'office', 'plaza'][(pc * 5 + pr * 7) % 6]; }
+  // ── Base layer ──
+  function blockType(pc, pr, occupied) { return occupied.has(pc + ',' + pr) ? 'lawn' : ['park', 'office', 'lawn', 'parking', 'office', 'plaza'][(pc * 5 + pr * 7) % 6]; }
+  function occupiedParcels() { return new Set([state.garageParcel].concat(state.restaurants.map(r => r.parcel)).concat(state.houses.map(h => h.parcel)).map(p => p.join(','))); }
   function buildBase() {
     const off = document.createElement('canvas'); off.width = canvas.width; off.height = canvas.height; const g = off.getContext('2d');
-    const sky = g.createLinearGradient(0, 0, 0, off.height); sky.addColorStop(0, 'rgba(40,52,80,0)'); sky.addColorStop(1, 'rgba(8,12,20,0)'); g.fillStyle = sky; g.fillRect(0, 0, off.width, off.height);
-    // soft platform shadow under the whole diamond
     const cAll = [iso(0, 0), iso(COLS - 1, 0), iso(COLS - 1, ROWS - 1), iso(0, ROWS - 1)];
-    g.save(); g.globalAlpha = 0.28; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 40; g.fillStyle = '#05070d';
-    g.beginPath(); cAll.forEach((p, i) => i ? g.lineTo(p.x, p.y + 14) : g.moveTo(p.x, p.y + 14)); g.closePath(); g.fill(); g.restore();
-    const stops = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
+    g.save(); g.globalAlpha = 0.3; g.shadowColor = 'rgba(0,0,0,.5)'; g.shadowBlur = 40; g.fillStyle = '#05070d'; g.beginPath(); cAll.forEach((p, i) => i ? g.lineTo(p.x, p.y + 14) : g.moveTo(p.x, p.y + 14)); g.closePath(); g.fill(); g.restore();
+    const occ = occupiedParcels();
     const isoG = (wx, wy) => iso(wx, wy, 0);
     const polyG = (pts, fill, stroke, lw) => { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p.x, p.y) : g.moveTo(p.x, p.y)); g.closePath(); if (fill) { g.fillStyle = fill; g.fill(); } if (stroke) { g.strokeStyle = stroke; g.lineWidth = lw || 1; g.stroke(); } };
-    // tiles
     const e = 0.09;
     for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
-      const type = blockType(pc, pr, stops);
+      const type = blockType(pc, pr, occ);
       const A = isoG(pc + e, pr + e), B = isoG(pc + 1 - e, pr + e), C = isoG(pc + 1 - e, pr + 1 - e), D = isoG(pc + e, pr + 1 - e);
       const col = type === 'parking' ? '#cfd3da' : type === 'plaza' ? '#dcd3bf' : type === 'park' ? '#9fce78' : ['#c4d3a6', '#bccd9c', '#cbd8af'][(pc + pr) % 3];
       polyG([A, B, C, D], col); polyG([A, B, C, D], null, 'rgba(0,0,0,.06)', 1);
-      g.save(); g.globalAlpha = 0.12; polyG([A, B, isoG(pc + 0.5, pr + 0.5)], '#ffffff'); g.restore();
+      g.save(); g.globalAlpha = 0.1; polyG([A, B, isoG(pc + 0.5, pr + 0.5)], '#ffffff'); g.restore();
       if (type === 'park') { const p = isoG(pc + 0.62, pr + 0.6); g.fillStyle = '#7fc4e8'; g.beginPath(); g.ellipse(p.x, p.y, TW * 0.34, TH * 0.34, 0, 0, 7); g.fill(); }
-      if (type === 'parking') { g.strokeStyle = 'rgba(255,255,255,.7)'; g.lineWidth = 2; for (let i = 1; i < 3; i++) { const s = isoG(pc + e + (1 - 2 * e) * i / 3, pr + e), t = isoG(pc + e + (1 - 2 * e) * i / 3, pr + 1 - e); g.beginPath(); g.moveTo(s.x, s.y); g.lineTo(t.x, t.y); g.stroke(); } }
       if (type === 'plaza') { const p = isoG(pc + 0.5, pr + 0.5); g.fillStyle = '#bcd9e8'; g.beginPath(); g.ellipse(p.x, p.y, TW * 0.3, TH * 0.3, 0, 0, 7); g.fill(); }
     }
-    // roads
     g.lineCap = 'round'; g.lineJoin = 'round';
     const lw = Math.max(10, TW * 0.5);
-    const edges = () => { for (const [id, list] of G.adj) { const a = isoG(...cr(id)); for (const v of list) { const b = isoG(...cr(v)); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); g.stroke(); } } };
-    g.strokeStyle = '#9aa0aa'; g.lineWidth = lw + 6; edges();
-    g.strokeStyle = '#b8bcc4'; g.lineWidth = lw; edges();
-    g.strokeStyle = 'rgba(245,205,90,.7)'; g.lineWidth = Math.max(1.4, lw * 0.08); g.setLineDash([TW * 0.28, TW * 0.4]); edges(); g.setLineDash([]);
+    const edgesOpen = (cb) => { for (const [id, list] of G.adj) for (const v of list) if (id < v && !state.closed.has(ek(id, v))) { const a = isoG(...cr(id)), b = isoG(...cr(v)); g.beginPath(); g.moveTo(a.x, a.y); g.lineTo(b.x, b.y); cb(); } };
+    g.strokeStyle = '#9aa0aa'; g.lineWidth = lw + 6; edgesOpen(() => g.stroke());
+    g.strokeStyle = '#b8bcc4'; g.lineWidth = lw; edgesOpen(() => g.stroke());
+    g.strokeStyle = 'rgba(245,205,90,.7)'; g.lineWidth = Math.max(1.4, lw * 0.08); g.setLineDash([TW * 0.28, TW * 0.4]); edgesOpen(() => g.stroke()); g.setLineDash([]);
     g.fillStyle = '#b8bcc4'; for (const id of G.nodes.keys()) { const p = isoG(...cr(id)); g.beginPath(); g.arc(p.x, p.y, lw * 0.55, 0, 7); g.fill(); }
+    // construction barriers on closed roads
+    for (const e2 of state.closed) { const ab = e2.split('|'); const a = isoG(...cr(ab[0])), b = isoG(...cr(ab[1])); const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2; const dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy) || 1, px = -dy / L, py = dx / L, bw = lw * 0.7; g.save(); g.translate(mx, my); for (let i = -2; i <= 2; i++) { g.fillStyle = i % 2 ? '#e8612a' : '#fff'; g.fillRect(px * (i * bw / 5) - 3, py * (i * bw / 5) - 7, 6, 14); } g.fillStyle = '#e8612a'; g.fillRect(-bw / 2 * Math.abs(px) - 2, -bw / 2 * Math.abs(py) - 9, Math.max(4, bw * Math.abs(px)) + 4, 4); g.restore(); }
     baseLayer = off;
   }
 
   // ── Render ──
+  function strokeP(pts) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); }
+  function stopDot(node, color) { const p = toScreen(node); ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 10, 6, 0, 0, 7); ctx.fill(); ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(p.x, p.y, 7.5, 4.5, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 3, 1.8, 0, 0, 7); ctx.fill(); ctx.restore(); }
+  function drawChevrons(pts) {
+    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = Math.max(2, TW * 0.08); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    const step = Math.max(26, TW * 1.1), size = Math.max(5, TW * 0.22); let acc = (anim.t * 0.05) % step;
+    for (let i = 1; i < pts.length; i++) { const a = pts[i - 1], b = pts[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue; const ux = dx / L, uy = dy / L, px = -uy, py = ux; for (let d = step - acc; d < L; d += step) { const cx = a.x + ux * d, cy = a.y + uy * d; ctx.beginPath(); ctx.moveTo(cx - ux * size + px * size, cy - uy * size + py * size); ctx.lineTo(cx, cy); ctx.lineTo(cx - ux * size - px * size, cy - uy * size - py * size); ctx.stroke(); } acc = (acc + L) % step; }
+    ctx.restore();
+  }
+  function ghostPath() { let nodes = [state.garage]; let prev = state.garage; for (const n of state.bestOrder) { const pp = dijkstra(G, prev, n, state.closed).path; nodes = nodes.concat(pp.slice(1)); prev = n; } return nodes.map(toScreen); }
   function render() {
     if (!baseLayer) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(baseLayer, 0, 0);
-    // route on the ground (under props)
+    // optimal ghost (review mode)
+    if (state.reviewing && state.bestOrder) { const gp = ghostPath(); ctx.save(); ctx.strokeStyle = 'rgba(52,211,107,.9)'; ctx.lineWidth = Math.max(5, TW * 0.2); ctx.setLineDash([TW * 0.5, TW * 0.3]); ctx.lineCap = 'round'; ctx.lineJoin = 'round'; strokeP(gp); ctx.setLineDash([]); ctx.restore(); }
+    // player route
     if (state.path.length > 1) {
       const pts = state.path.map(toScreen); ctx.lineJoin = 'round'; ctx.lineCap = 'round';
       ctx.strokeStyle = 'rgba(47,111,237,.28)'; ctx.lineWidth = Math.max(13, TW * 0.5); strokeP(pts);
       ctx.strokeStyle = '#2f6fed'; ctx.lineWidth = Math.max(6, TW * 0.26); strokeP(pts);
-      ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(2, TW * 0.07);
-      ctx.setLineDash([TW * 0.22, TW * 0.34]); ctx.lineDashOffset = -(anim.t * 0.05) % 100000; strokeP(pts); ctx.setLineDash([]); ctx.lineDashOffset = 0;
+      ctx.strokeStyle = 'rgba(255,255,255,.9)'; ctx.lineWidth = Math.max(2, TW * 0.07); ctx.setLineDash([TW * 0.22, TW * 0.34]); ctx.lineDashOffset = -(anim.t * 0.05) % 100000; strokeP(pts); ctx.setLineDash([]); ctx.lineDashOffset = 0;
       drawChevrons(pts);
     }
     // road dots
-    stopDot(state.pickup, '#f59e0b'); state.drops.forEach((d, i) => stopDot(d.node, d.done ? '#2ecc71' : DROP_COLORS[i % 3]));
+    stopDot(state.garage, '#5b6577');
+    state.restaurants.forEach(r => stopDot(r.node, r.color));
+    state.houses.forEach(h => stopDot(h.node, h.done ? '#2ecc71' : h.color));
     // depth-sorted props
-    const stops = new Set([state.pickupParcel].concat(state.drops.map(d => d.parcel)).map(p => p.join(',')));
-    const props = [];
+    const occ = occupiedParcels(); const props = [];
     for (let pr = 0; pr < ROWS - 1; pr++) for (let pc = 0; pc < COLS - 1; pc++) {
-      const type = blockType(pc, pr, stops); const wx = pc + 0.5, wy = pr + 0.5, d = wx + wy;
+      const type = blockType(pc, pr, occ); const wx = pc + 0.5, wy = pr + 0.5, d = wx + wy;
       if (type === 'office') props.push({ d, fn: () => drawOffice(wx, wy, pc * 3 + pr) });
       else if (type === 'park') { props.push({ d: d - 0.1, fn: () => drawTree(pc + 0.3, pr + 0.4, 1) }); props.push({ d: d + 0.1, fn: () => drawTree(pc + 0.62, pr + 0.72, 0.8) }); }
       else if (type === 'parking') props.push({ d, fn: () => drawCar(wx, wy, ['#e0705f', '#5aa9d6', '#e6c14e'][(pc + pr) % 3]) });
       else if (type === 'plaza') props.push({ d, fn: () => drawTree(pc + 0.3, pr + 0.3, 0.8) });
       else if (((pc * 31 + pr * 17) % 6) < 2) props.push({ d, fn: () => drawTree(wx, wy, 1) });
     }
-    const pp = state.pickupParcel; props.push({ d: pp[0] + pp[1] + 1, fn: () => drawShop(pp[0] + 0.5, pp[1] + 0.5) });
-    state.drops.forEach((dr, i) => { const p = dr.parcel; props.push({ d: p[0] + p[1] + 1, fn: () => drawHouse(p[0] + 0.5, p[1] + 0.5, DROP_COLORS[i % 3], String(i + 1), dr.done) }); });
-    if (state.path.length) {
-      const tail = cr(state.path[state.path.length - 1]); const prev = state.path[state.path.length - 2] ? cr(state.path[state.path.length - 2]) : tail;
-      const dir = [tail[0] - prev[0], tail[1] - prev[1]]; if (!dir[0] && !dir[1]) dir[0] = 1;
-      props.push({ d: tail[0] + tail[1] + 0.5, fn: () => drawVan(tail[0], tail[1], dir) });
-    }
+    const gp = state.garageParcel; props.push({ d: gp[0] + gp[1] + 1, fn: () => drawDepot(gp[0] + 0.5, gp[1] + 0.5) });
+    state.restaurants.forEach(r => { const p = r.parcel; props.push({ d: p[0] + p[1] + 1, fn: () => drawShop(p[0] + 0.5, p[1] + 0.5, r.color, r.icon) }); });
+    state.houses.forEach((h, i) => { const p = h.parcel; props.push({ d: p[0] + p[1] + 1, fn: () => drawHouse(p[0] + 0.5, p[1] + 0.5, h.color, String(i + 1), h.icon, h.done) }); });
+    // ambient cars
+    for (const c of state.cars) { const A = cr(c.a), B = cr(c.b); const wx = A[0] + (B[0] - A[0]) * c.t, wy = A[1] + (B[1] - A[1]) * c.t; props.push({ d: wx + wy, fn: () => drawCar(wx, wy, c.col, [B[0] - A[0], B[1] - A[1]]) }); }
+    // van
+    if (state.path.length) { const tail = cr(state.path[state.path.length - 1]); const pv = state.path[state.path.length - 2] ? cr(state.path[state.path.length - 2]) : tail; const dir = [tail[0] - pv[0], tail[1] - pv[1]]; if (!dir[0] && !dir[1]) dir[0] = 1; props.push({ d: tail[0] + tail[1] + 0.5, fn: () => drawVan(tail[0], tail[1], dir) }); }
     props.sort((a, b) => a.d - b.d).forEach(p => p.fn());
-    // particles + HUD
+    // night overlay + streetlights
+    if (state.night) {
+      ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.fillStyle = '#33406e'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.restore();
+      ctx.save(); ctx.globalCompositeOperation = 'lighter';
+      for (const id of G.nodes.keys()) { const p = toScreen(id); const g = ctx.createRadialGradient(p.x, p.y - ZS * 0.2, 1, p.x, p.y - ZS * 0.2, ZS * 0.6); g.addColorStop(0, 'rgba(255,214,130,.45)'); g.addColorStop(1, 'rgba(255,214,130,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y - ZS * 0.2, ZS * 0.6, 0, 7); ctx.fill(); }
+      ctx.restore();
+    }
     drawParts();
     const target = pathLength(); anim.dist += (target - anim.dist) * 0.25; if (Math.abs(target - anim.dist) < 0.05) anim.dist = target;
     document.getElementById('youDist').textContent = anim.dist.toFixed(1) + ' mi';
     document.getElementById('bestDist').textContent = state.optimal.toFixed(1) + ' mi';
-    document.getElementById('deliveredN').textContent = state.drops.filter(d => d.done).length + '/' + state.drops.length;
+    document.getElementById('deliveredN').textContent = state.houses.filter(h => h.done).length + '/' + state.houses.length;
+    document.getElementById('undoBtn').classList.toggle('hidden', state.path.length < 2 || state.finished || state.reviewing);
   }
-  function strokeP(pts) { ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(p.x, p.y) : ctx.moveTo(p.x, p.y)); ctx.stroke(); }
-  function stopDot(node, color) { const p = toScreen(node); ctx.save(); ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 10, 6, 0, 0, 7); ctx.fill(); ctx.fillStyle = color; ctx.beginPath(); ctx.ellipse(p.x, p.y, 7.5, 4.5, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.ellipse(p.x, p.y, 3, 1.8, 0, 0, 7); ctx.fill(); ctx.restore(); }
-  function drawChevrons(pts) {
-    ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.92)'; ctx.lineWidth = Math.max(2, TW * 0.08); ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    const step = Math.max(26, TW * 1.1), size = Math.max(5, TW * 0.22); let acc = (anim.t * 0.05) % step;
-    for (let i = 1; i < pts.length; i++) {
-      const a = pts[i - 1], b = pts[i], dx = b.x - a.x, dy = b.y - a.y, L = Math.hypot(dx, dy); if (L < 1) continue;
-      const ux = dx / L, uy = dy / L, px = -uy, py = ux;
-      for (let dd = step - acc; dd < L; dd += step) { const cx = a.x + ux * dd, cy = a.y + uy * dd; ctx.beginPath(); ctx.moveTo(cx - ux * size + px * size, cy - uy * size + py * size); ctx.lineTo(cx, cy); ctx.lineTo(cx - ux * size - px * size, cy - uy * size - py * size); ctx.stroke(); }
-      acc = (acc + L) % step;
-    }
-    ctx.restore();
-  }
-  function loop(ts) { const dt = Math.min(0.05, (ts - lastT) / 1000) || 0.016; lastT = ts; anim.t = ts; updateParts(dt); render(); requestAnimationFrame(loop); }
+  function loop(ts) { const dt = Math.min(0.05, (ts - lastT) / 1000) || 0.016; lastT = ts; anim.t = ts; updateParts(dt); if (state) updateCars(dt); render(); requestAnimationFrame(loop); }
 
   // ── Interaction ──
   function evtPos(e) { const r = canvas.getBoundingClientRect(); return { x: (e.clientX - r.left) * (canvas.width / r.width), y: (e.clientY - r.top) * (canvas.height / r.height) }; }
   const R = 48;
   function onDown(e) {
-    if (state.finished) return; ensureAudio();
+    if (state.finished || state.reviewing) return; ensureAudio();
     const { x, y } = evtPos(e);
     if (state.path.length === 0) {
-      const pp = toScreen(state.pickup), pb = parcelCenter(state.pickupParcel);
-      if (Math.hypot(pp.x - x, pp.y - y) <= R || Math.hypot(pb.x - x, pb.y - y) <= R + 20) { state.path = [state.pickup]; state.drawing = true; sfxStart(); markDeliveries(); render(); }
-      else setHint('Start at the <b>🍔 pickup</b>!');
+      const gp = toScreen(state.garage), gb = parcelCenter(state.garageParcel);
+      if (Math.hypot(gp.x - x, gp.y - y) <= R || Math.hypot(gb.x - x, gb.y - y) <= R + 20) { state.path = [state.garage]; state.drawing = true; sfxStart(); render(); }
+      else setHint('Start at the <b>🚚 garage</b>!');
     } else { const tp = toScreen(state.path[state.path.length - 1]); if (Math.hypot(tp.x - x, tp.y - y) <= R) state.drawing = true; }
   }
   function onMove(e) { if (!state.drawing || state.finished) return; const { x, y } = evtPos(e); if (stepToward(x, y)) render(); }
-  function onUp() { if (!state.drawing) return; state.drawing = false; if (state.drops.every(d => d.done)) finish(); else setHint('Deliver to <b>all 3 🏠 houses</b> — keep dragging from the 🚚.'); }
+  function onUp() { if (!state.drawing) return; state.drawing = false; if (state.houses.every(h => h.done)) finish(); else hintProgress(); }
+  function onUndo() { if (state.path.length < 2 || state.finished) return; state.path.pop(); recomputeDone(); render(); }
   function setHint(html) { document.getElementById('hint').innerHTML = html; }
+  function hintProgress() {
+    const need = state.houses.filter(h => !h.done);
+    if (!need.length) return;
+    setHint('Hit each <b>shop</b> before its matching <b>🏠 house</b> (same colour), then deliver all 3.');
+  }
 
   function finish() {
     state.finished = true;
     const you = pathLength(), best = state.optimal, eff = best / you;
+    anim.dist = you; // snap the counter so results read exact
+    document.getElementById('youDist').textContent = you.toFixed(1) + ' mi';
+    document.getElementById('hint').classList.add('hidden');
     let stars = 1, title = 'Delivered!';
     if (eff >= 0.999) { stars = 3; title = 'Perfect Route!'; } else if (eff >= 0.85) { stars = 2; title = 'Nice Driving!'; }
     const extra = Math.max(0, you - best);
@@ -429,36 +475,41 @@
         '<div class="res-cell"><div class="rl">SHORTEST POSSIBLE</div><div class="rv best">' + best.toFixed(1) + ' mi</div></div>' +
       '</div>' +
       '<div class="msg">' + (extra < 0.05 ? 'You found the shortest route! 🏆' : 'You drove <b>' + extra.toFixed(1) + ' mi</b> further than the shortest route.') + '</div>' +
-      '<button class="btn primary" id="againBtn">New Map ▸</button>';
+      '<div class="btn-row"><button class="btn ghost" id="ghostBtn">Show best route</button><button class="btn primary" id="againBtn">New Map ▸</button></div>';
     document.getElementById('overlay').classList.remove('hidden');
     document.getElementById('againBtn').addEventListener('click', newMap);
-    sfxWin(); spawnStar();
+    document.getElementById('ghostBtn').addEventListener('click', () => { state.reviewing = true; document.getElementById('overlay').classList.add('hidden'); document.getElementById('reviewBtn').classList.remove('hidden'); render(); });
+    sfxWin(); spawnStar(); if (navigator.vibrate) navigator.vibrate([50, 40, 60]);
   }
-  function reset() { state.path = []; state.drawing = false; state.finished = false; state.drops.forEach(d => d.done = false); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
-  function newMap() { genMap(); buildBase(); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); setHint('Press the <b>🍔 pickup</b>, then drag along the roads to all <b>3 🏠 houses</b>.'); render(); }
+  function endReview() { state.reviewing = false; document.getElementById('reviewBtn').classList.add('hidden'); document.getElementById('overlay').classList.remove('hidden'); render(); }
+  // (hint stays hidden under results; fresh()/reset restores it)
+  function fresh() { state.path = []; state.drawing = false; state.finished = false; state.reviewing = false; state.houses.forEach(h => h.done = false); anim.dist = 0; anim.parts.length = 0; document.getElementById('overlay').classList.add('hidden'); document.getElementById('reviewBtn').classList.add('hidden'); const hint = document.getElementById('hint'); hint.classList.remove('hidden'); hint.innerHTML = 'Drag from the <b>🚚 garage</b>: visit each <b>shop</b> before its matching <b>🏠 house</b>.'; }
+  function reset() { fresh(); render(); }
+  function newMap() { genMap(); buildBase(); fresh(); render(); }
+  function toggleNight() { state.night = !state.night; document.body.classList.toggle('night', state.night); document.getElementById('dnBtn').textContent = state.night ? '☀️' : '🌙'; render(); }
   function relayout() { if (!sizeCanvas()) { setTimeout(relayout, 50); return; } computeFit(canvas.width, canvas.height); buildBase(); render(); }
 
   function boot() {
     if (!sizeCanvas()) { setTimeout(boot, 50); return; }
-    genMap(); computeFit(canvas.width, canvas.height); buildBase(); render();
+    genMap(); computeFit(canvas.width, canvas.height); buildBase(); fresh(); render();
     window.addEventListener('pointerdown', onDown); window.addEventListener('pointermove', onMove); window.addEventListener('pointerup', onUp);
     window.addEventListener('resize', relayout);
     document.getElementById('newBtn').addEventListener('click', newMap);
     document.getElementById('resetBtn').addEventListener('click', reset);
+    document.getElementById('undoBtn').addEventListener('click', onUndo);
+    document.getElementById('reviewBtn').addEventListener('click', endReview);
+    document.getElementById('dnBtn').addEventListener('click', toggleNight);
     lastT = 0; requestAnimationFrame(loop);
     window.MQ = {
       state: () => state, pathLength, screenOf: (id) => toScreen(id),
       autoSolve: () => {
-        const nodes = state.drops.map(d => d.node);
-        const rd = (o) => { let d = dijkstra(G, state.pickup, o[0]); for (let i = 1; i < o.length; i++) d += dijkstra(G, o[i - 1], o[i]); return d; };
-        let order = nodes, bd = Infinity; for (const p of perms(nodes)) { const d = rd(p); if (d < bd) { bd = d; order = p; } }
-        state.path = [state.pickup]; state.drawing = true;
-        for (const tgt of order) { const p = toScreen(tgt); stepToward(p.x, p.y); }
-        state.drawing = false; markDeliveries(); if (state.drops.every(d => d.done)) finish();
-        return { you: pathLength(), best: state.optimal };
+        const order = state.bestOrder; state.path = [state.garage]; state.drawing = true;
+        for (const n of order) { const p = toScreen(n); stepToward(p.x, p.y); }
+        state.drawing = false; computeDone(true); if (state.houses.every(h => h.done)) finish();
+        return { you: pathLength(), best: state.optimal, delivered: state.houses.map(h => h.done) };
       },
     };
-    console.log('map quest iso booted');
+    console.log('map quest deep booted');
   }
   boot();
 })();
